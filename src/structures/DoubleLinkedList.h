@@ -85,4 +85,47 @@ public:
     long long getSize() const {
         return sizeList;
     }
+
+    // Trả về vị trí của phần tử cần tìm
+    Node *Find( const T& value)
+    {
+        Node *temp = head;
+        while (temp != nullptr)
+        {
+            if (temp->value == value)
+                return temp;
+            temp = temp->next;
+        }
+        return nullptr;
+    }
+    
+    // Xóa phần tử tại vị trí bất kỳ khỏi danh sách
+    void Delete( const T& val){
+        if (head == nullptr) return;
+        if (head->value == val)
+        {
+            Node *target = head;
+            head = head->next;
+
+            if (head == nullptr){
+                tail = nullptr;
+            }
+            delete target;
+            return;
+        }
+        Node *temp = head;
+        while ( temp->next != nullptr && temp-> next-> value != val){
+            temp= temp -> next;
+        }
+        if (temp->next == nullptr) {
+            return; 
+        }
+        Node *target = temp-> next;
+        temp -> next = target-> next;
+        if (target == tail)
+            {
+                tail = temp;
+            }
+        delete target;
+    }
 };
