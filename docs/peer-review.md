@@ -34,7 +34,7 @@
  
 - **Kết luận:** 
 
-### 3. Review của Trương Hoàng Minh Nhật Phạm Hồng Tiến Minh cho phần code của Tào Lê Quốc Anh
+### 3. Review của Trương Hoàng Minh Nhật cho phần code của Tào Lê Quốc Anh
 - **Thành phần review:** 
 - **Nhận xét:**
 
