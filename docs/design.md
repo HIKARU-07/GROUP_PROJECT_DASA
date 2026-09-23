@@ -75,9 +75,9 @@ Chứa 3 cấu trúc dữ liệu tự cài đặt: `HashTable`, `PriorityQueue`,
 - Thao tác chính: thêm vào đầu, xóa ở cuối, di chuyển node lên đầu.
 - Cần tra cứu nhanh xem phim đã tồn tại chưa.
 
-**Chọn:** Kết hợp `DoubleLinkedList.h` và `HashTable.h`.
+**Chọn:** Dùng `DoubleLinkedList.h`.
 
-**Đánh đổi:** DLL cho phép thêm/xóa/di chuyển node trong O(1). Hash Table giúp tra cứu phim đã tồn tại trong O(1). Nếu chỉ dùng mảng, việc dịch chuyển phần tử tốn O(n).
+**Đánh đổi:** DoubleLinkedList cho phép thêm/xóa/di chuyển node trong O(1), tuy nhiên lại phải tốn bộ nhớ phụ trợ O(n).
 
 ---
 
