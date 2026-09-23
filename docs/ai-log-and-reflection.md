@@ -37,3 +37,6 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 *Hình ảnh nhóm sử dụng AI để gỡ lỗi (Debug) trong quá trình làm việc:*
 - Minh chứng 1:
 ![Minh chung 1 ](Image/minhchung1.png)
+- Minh chứng 2:
+
+![Minh chứng 2](Image/minhchung2.png)
