@@ -1,4 +1,5 @@
-#include "../src/core/structures/PriorityQueue.h"
+#include "../src/structures/PriorityQueue.h"
+
 #include <iostream>
 
 using namespace std;
@@ -13,17 +14,8 @@ int main() {
             "SHOWTIME-001",
             "A01",
             "CUS-003",
-            "2026-09-03 12:00:00"
-        )
-    );
-
-    queue.push(
-        BookingRequest(
-            "REQ-00001",
-            "SHOWTIME-001",
-            "A01",
-            "CUS-001",
-            "2026-09-03 10:00:00"
+            "2026-09-03 12:00:00",
+            "PENDING"
         )
     );
 
@@ -33,13 +25,26 @@ int main() {
             "SHOWTIME-001",
             "A01",
             "CUS-002",
-            "2026-09-03 10:00:00"
+            "2026-09-03 10:00:00",
+            "PENDING"
+        )
+    );
+
+    queue.push(
+        BookingRequest(
+            "REQ-00001",
+            "SHOWTIME-001",
+            "A01",
+            "CUS-001",
+            "2026-09-03 10:00:00",
+            "PENDING"
         )
     );
 
     while (!queue.empty()) {
 
-        BookingRequest request = queue.top();
+        BookingRequest request =
+            queue.top();
 
         cout
             << request.getRequestId()
