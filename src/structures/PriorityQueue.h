@@ -12,6 +12,7 @@ private:
     int capacity;
     int size;
 
+    // So sánh độ ưu tiên, xét thời gian -> id
     bool higherPriority(
         const BookingRequest& a,
         const BookingRequest& b
@@ -24,6 +25,7 @@ private:
         return a.getRequestId() < b.getRequestId();
     }
 
+    // Hàm đổi vị trí
     void swapRequest(
         BookingRequest& a,
         BookingRequest& b
@@ -33,6 +35,7 @@ private:
         b = temp;
     }
 
+    // Khi thêm phần tử
     void heapifyUp(int index) {
 
         while (index > 0) {
@@ -54,6 +57,7 @@ private:
         }
     }
 
+    // Khi xóa phần tử đầu 
     void heapifyDown(int index) {
 
         while (true) {
@@ -94,6 +98,7 @@ private:
         }
     }
 
+    // Tăng kích thước khi đầy
     void resize() {
 
         int newCapacity = capacity * 2;
@@ -112,7 +117,7 @@ private:
     }
 
 public:
-
+    // Hàm dựng
     PriorityQueue(int initialCapacity = 16) {
 
         capacity = initialCapacity;
@@ -122,10 +127,13 @@ public:
             new BookingRequest[capacity];
     }
 
+    // Hàm hủy
     ~PriorityQueue() {
         delete[] heap;
     }
 
+
+    // Thêm BookingRequest
     void push(const BookingRequest& request) {
 
         if (size == capacity) {
@@ -139,6 +147,7 @@ public:
         heapifyUp(size - 1);
     }
 
+    // Xem request có độ ưu tiên cao nhất
     BookingRequest top() const {
 
         if (size == 0) {
@@ -150,6 +159,7 @@ public:
         return heap[0];
     }
 
+    // Xóa request ưu tiên nhất
     void pop() {
 
         if (size == 0) {
@@ -167,10 +177,12 @@ public:
         }
     }
 
+    // Kiểm tra có rỗng không
     bool empty() const {
         return size == 0;
     }
 
+    // Trả về số lượng hiện tại
     int getSize() const {
         return size;
     }
