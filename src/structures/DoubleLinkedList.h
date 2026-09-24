@@ -79,27 +79,8 @@ public:
         sizeList++;
     }
     // Tìm phần tử có trong List hay không
-    bool contains
 
-    // Trả về kích thước list
-    long long getSize() const {
-        return sizeList;
-    }
-
-    // Trả về vị trí của phần tử cần tìm
-    Node *Find( const T& value)
-    {
-        Node *temp = head;
-        while (temp != nullptr)
-        {
-            if (temp->value == value)
-                return temp;
-            temp = temp->next;
-        }
-        return nullptr;
-    }
-    
-    // Xóa phần tử tại vị trí bất kỳ khỏi danh sách
+    // Xóa phần tử bất kỳ trong danh sách
     void Delete( const T& val){
         if (head == nullptr) return;
         if (head->value == val)
@@ -127,5 +108,22 @@ public:
                 tail = temp;
             }
         delete target;
+    }
+
+    // Trả về vị trí của phần tử cần tìm trong danh sách
+    Node* Search( const T& value){
+        Node *temp = head;
+        while (temp != nullptr)
+        {
+            if (temp->value == value)
+                return temp;
+            temp = temp->next;
+        }
+        return nullptr;
+    }
+
+    // Trả về kích thước list
+    long long getSize() const {
+        return sizeList;
     }
 };
