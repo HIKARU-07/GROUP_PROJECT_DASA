@@ -111,7 +111,7 @@ public:
     }
 
     // Trả về vị trí của phần tử cần tìm trong danh sách
-    Node* Search( const T& value){
+    T* Search( const T& value){
         Node *temp = head;
         while (temp != nullptr)
         {
