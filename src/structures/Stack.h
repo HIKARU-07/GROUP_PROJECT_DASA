@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -48,5 +49,14 @@ public:
     int size() const
     {
         return data.size();
+    }
+    void print() const
+    {
+    for (int i = data.size() - 1; i >= 0; i--){
+        cout << data[i].operation
+             << " | "
+             << data[i].timestamp
+             << endl;
+        }
     }
 };
