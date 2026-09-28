@@ -17,13 +17,13 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 |:---:|:---:|:---|:---|:---|:---|:---|
 | 1 | 22/09 | Hoàng |  | Tạo và cập nhật cấu trúc Project ban đầu | Hãy giúp tôi tạo ra một cấu trúc Project theo Nội Dung hướng dẫn dưới đây | AI trả ra là một cấu trúc Project có sự phù hợp với những gì nhóm đã hướng đến |
 | 3 | 23/09 | Hoàng | DoubleLinkedList | Tìm hướng giải quyết | Tôi muốn tạo một structure nhưng lại có 2 service dùng chung khác nhưng dữ liệu -> gợi ý | Gợi ý 2 service lưu 2 loại object khác nhau thì nên dùng template & em đã áp dụng và thấy hiệu quả |
-
-
+| 4 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với input có cấu trúc thế này thì hướng đi nào phù hợp để tách được 2 phần vào 2 dữ liệu khác nhau | Đưa ra hướng đi phù hợp kèm theo đó giải quyết luôn cả vấn đề tách command và target |
+| 5 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với định dạng YYYY-MM-DD HH:MM thì hướng nào để xử lí chuỗi và so sánh với chuỗi khác | Đưa ra thư viện để xử lí chuỗi sau đó so sánh với nhau để lấy được khoảng cách thời gian |
 ## III. Phản tư & Đánh giá (Reflection)
 
 ### 1. Phạm Minh Hoàng
 
-### 2.
+### 2. Phạm Hồng Tiến Minh
 
 ### 3.
 
@@ -39,4 +39,7 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 ![Minh chứng 2](Image/minhchung2.png)
 - Minh chứng 3:
 ![Minh chứng 3](Image/minhchung3.png)
-
+- Minh chứng 4:
+![Minh chứng 4](Image/minhchung4.png)
+- Minh chứng 5:
+![Minh chứng 5](Image/minhchung5.png)
