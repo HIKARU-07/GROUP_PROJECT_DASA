@@ -18,8 +18,8 @@ private:
     std::vector<DoubleLinkedList<Ticket>> buckets;
     size_t ticketCount;
 
-    // Hàm băm FNV-1a (64-bit) biến đổi chuỗi bookingId thành số nguyên 64-bit
-    size_t hashFNV1a(const std::string& key) const;
+    // Hàm băm hash_ticket
+    size_t hash_ticket(const std::string& key) const;
     
     // Hàm tính vị trí của giá trị cần tìm 
     size_t bucketIndex(const std::string& key) const;
@@ -29,7 +29,6 @@ private:
 
     // Các hàm kiểm tra và xử lý thời gian (YYYY-MM-DD HH:MM)
     bool checkTime(const std::string& dt) const;
-    bool checkNhuan(int year) const;  // Kiểm tra năm đó có nhuận hay không
     int getDaysInMonth(int month, int year) const;  // Lấy ra số ngày trong tháng
     long long toMinutes(const std::string& dt) const; // Chuyển đổi thời gian sang phút
     bool checkDate(const std::string& showtime, const std::string& currentTime) const; // Hàm kiểm tra vé đã hết hạn hay chưa 

@@ -1,5 +1,6 @@
 #include "TicketService.h"
 #include <functional>
+#include <cctype>
  
 using namespace std;
  
@@ -23,7 +24,7 @@ TicketService::TicketService(size_t expectedN)
 }
  
 // Khởi tạo mảng băm
-size_t TicketService::hashFNV1a(const string& key) const
+size_t TicketService::hash_ticket(const string& key) const
 {
     return std::hash<string>{}(key);
 }
@@ -31,7 +32,7 @@ size_t TicketService::hashFNV1a(const string& key) const
 // Đổi mã băm thành vị trí bucket bằng phép chia lấy dư.
 size_t TicketService::bucketIndex(const string& key) const
 {
-    return hashFNV1a(key) % buckets.size();
+    return hash_ticket(key) % buckets.size();
 }
  
 // checkId
@@ -140,19 +141,20 @@ bool TicketService::checkDate(const string& showtime, const string& currentTime)
 // Nếu bookingId đã có thì ghi đè vé cũ
 void TicketService::addTicket(const Ticket& ticket)
 {
-    DoubleLinkedList<Ticket>& bucket = buckets[bucketIndex(ticket.bookingId)];
- 
-    // Duyệt bucket tìm vé trùng bookingId
-    for (Ticket& t : bucket)
+    DoubleLinkedList<Ticket>& bucket =
+        buckets[bucketIndex(ticket.bookingId)];
+
+    for (long long i = 0; i < bucket.getSize(); i++)
     {
+        Ticket& t = bucket.getAt(i);
+
         if (t.bookingId == ticket.bookingId)
         {
-            t = ticket;   // ghi đè
+            t = ticket;
             return;
         }
     }
- 
-    // Không trùng thì thêm mới
+
     bucket.pushBack(ticket);
     ticketCount++;
 }
@@ -161,13 +163,19 @@ void TicketService::addTicket(const Ticket& ticket)
 // Tìm vé theo bookingId
 const Ticket* TicketService::findTicket(const string& bookingId) const
 {
-    const DoubleLinkedList<Ticket>& bucket = buckets[bucketIndex(bookingId)];
- 
-    for (const Ticket& t : bucket)
+    const DoubleLinkedList<Ticket>& bucket =
+        buckets[bucketIndex(bookingId)];
+
+    for (long long i = 0; i < bucket.getSize(); i++)
     {
+        const Ticket& t = bucket.getAt(i);
+
         if (t.bookingId == bookingId)
+        {
             return &t;
+        }
     }
+
     return nullptr;
 }
  
@@ -176,7 +184,7 @@ const Ticket* TicketService::findTicket(const string& bookingId) const
 CheckInResult TicketService::checkTicket(const string& bookingId, const string& currentTime) const
 {
     // 1. Sai định dạng
-    if (!checkId(bookingId)|| !checkTime(currentTime))
+    if (!checkId(bookingId) || !checkTime(currentTime) )
         return CheckInResult::INVALID_FORMAT;
  
     // 2. Không tìm thấy
