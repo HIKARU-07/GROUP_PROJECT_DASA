@@ -17,12 +17,17 @@ string resultToString(CheckInResult res) {
     }
 }
 
-// Ticket có 8 field nên phải gán đúng tên field, không dùng {a, b, c}
+// Ticket có 8 field 
 Ticket makeTicket(const string& id, const string& showtime, const string& status) {
     Ticket t;
-    t.bookingId    = id;
-    t.showtime     = showtime;
-    t.ticketStatus = status;
+    t.bookingId     = id;
+    t.customerName  = "Nguyen Van Muoi";
+    t.movieName     = "Phim MINIONS";
+    t.showtime      = showtime;
+    t.cinemaRoom    = "Room02";
+    t.seats         = "A01";
+    t.ticketStatus  = status;
+    t.cinemaAddress = "THU DUC";
     return t;
 }
 
