@@ -21,6 +21,7 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 | 5 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với input có cấu trúc thế này thì hướng đi nào phù hợp để tách được 2 phần vào 2 dữ liệu khác nhau | Đưa ra hướng đi phù hợp kèm theo đó giải quyết luôn cả vấn đề tách command và target |
 | 6 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với định dạng YYYY-MM-DD HH:MM thì hướng nào để xử lí chuỗi và so sánh với chuỗi khác | Đưa ra thư viện để xử lí chuỗi sau đó so sánh với nhau để lấy được khoảng cách thời gian |
 | 7 | 30/09 | Hoàng | DoubleLinkedList | Debug | Hiện tại đoạn mã nguồn của tôi như sau: .... tại sao khi chạy test nó lại báo lỗi ... | Đã giải quyết được vấn đề, kết quả nhận được khá là mới mẻ trong việc dùng operator== |
+| 8 | 30/09 | Hiếu | test_mc1 | Sinh bộ testcase kiểm thử | Hãy giúp tôi sinh các testcase cho đầy đủ các trường hợp TicketService | Sinh ra danh sách testcase đầy đủ cho các trường hợp hợp lệ, hết hạn, đã dùng, không tìm thấy và sai định dạng |
 
 ## III. Phản tư & Đánh giá (Reflection)
 
@@ -48,3 +49,5 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 ![Minh chứng 5](Image/minhchung5.png)
 - Minh chứng 7:
 ![Minh chứng 7](Image/minhchung7.png)
+- Minh chứng 8:
+![Minh chứng 8](Image/minhchung8.png)
