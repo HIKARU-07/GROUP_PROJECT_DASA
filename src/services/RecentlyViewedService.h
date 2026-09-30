@@ -1,7 +1,7 @@
 #ifndef RECENTLY_VIEWED_SERVICE_H
 #define RECENTLY_VIEWED_SERVICE_H
 
-#include "../models/Movied.h"
+#include "../models/Movie.h"
 #include "../structures/DoubleLinkedList.h"
 
 

@@ -153,7 +153,7 @@ public:
     }
 
     // Kiểm tra rỗng
-    bool isEmpty(){
-        return sizeList == 0;
+    bool isEmpty() const{
+        return size == 0;
     }
 };

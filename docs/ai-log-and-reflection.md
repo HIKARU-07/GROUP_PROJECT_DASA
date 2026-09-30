@@ -20,6 +20,8 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 | 4 | 25/09 | Nhật | HashTable | Tìm hướng giải quyết | Tôi muốn tạo một structure và tìm cách kết nối các service dùng chung khác nhau | Giải quyết xung đột giữa service HashTable và DoubleLinkedList |
 | 5 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với input có cấu trúc thế này thì hướng đi nào phù hợp để tách được 2 phần vào 2 dữ liệu khác nhau | Đưa ra hướng đi phù hợp kèm theo đó giải quyết luôn cả vấn đề tách command và target |
 | 6 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với định dạng YYYY-MM-DD HH:MM thì hướng nào để xử lí chuỗi và so sánh với chuỗi khác | Đưa ra thư viện để xử lí chuỗi sau đó so sánh với nhau để lấy được khoảng cách thời gian |
+| 7 | 30/09 | Hoàng | DoubleLinkedList | Debug | Hiện tại đoạn mã nguồn của tôi như sau: .... tại sao khi chạy test nó lại báo lỗi ... | Đã giải quyết được vấn đề, kết quả nhận được khá là mới mẻ trong việc dùng operator== |
+
 ## III. Phản tư & Đánh giá (Reflection)
 
 ### 1. Phạm Minh Hoàng
@@ -44,3 +46,5 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 ![Minh chứng 4](Image/minhchung4.png)
 - Minh chứng 5:
 ![Minh chứng 5](Image/minhchung5.png)
+- Minh chứng 7:
+![Minh chứng 7](Image/minhchung7.png)

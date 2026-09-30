@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Khách vừa xem một bộ phim
-void RecentlyViewedService::view(Moive movie){
+void RecentlyViewedService::view(const Movie& movie){
     bool inList = (recentList.Search(movie) != nullptr);
     if (inList){
         recentList.Delete(movie);
@@ -13,7 +13,7 @@ void RecentlyViewedService::view(Moive movie){
 }
 
 // Nạp lịch sử ban đầu
-void RecentlyViewedService::append(Movie movie){
+void RecentlyViewedService::append(const Movie& movie){
     recentList.pushBack(movie);
 }
 
