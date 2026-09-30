@@ -117,9 +117,11 @@ void UndoService::undo(){
     // Operation không hợp lệ
     cout << "FAILED DATA" << endl;
 }
+// In Stack từ trên xuống
 void UndoService::printStack() const
 {
-    cout << "\nCurrent Stack:" << endl;
+    cout << endl;
+    cout << "Current Stack:" << endl;
 
     if (undoStack.empty())
     {
@@ -127,5 +129,15 @@ void UndoService::printStack() const
         return;
     }
 
-    undoStack.print();
+    for (int i = 0; i < undoStack.size(); i++)
+    {
+        UndoAction action;
+
+        undoStack.get(i, action);
+
+        cout << action.operation
+             << " | "
+             << action.timestamp
+             << endl;
+    }
 }
