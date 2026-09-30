@@ -78,7 +78,20 @@ public:
         }
         sizeList++;
     }
-    // Tìm phần tử có trong List hay không
+    // Xóa phần tử cuối danh sách, trả về false nếu danh sách rỗng
+    bool popBack(){
+        if (tail == nullptr) return false;
+        Node* target = tail;
+        tail = tail->prev;
+        if (tail != nullptr){
+            tail->next = nullptr;
+        } else {
+            head = nullptr;
+        }
+        delete target;
+        sizeList--;
+        return true;
+    }
 
     // Xóa phần tử bất kỳ trong danh sách
     void Delete( const T& val){
@@ -108,10 +121,11 @@ public:
                 tail = temp;
             }
         delete target;
+        sizeList--;
     }
 
     // Trả về vị trí của phần tử cần tìm trong danh sách
-    T* Search( const T& value){
+    Node* Search( const T& value){
         Node *temp = head;
         while (temp != nullptr)
         {
@@ -125,5 +139,10 @@ public:
     // Trả về kích thước list
     long long getSize() const {
         return sizeList;
+    }
+
+    // Kiểm tra rỗng
+    bool isEmpty(){
+        return sizeList == 0;
     }
 };
