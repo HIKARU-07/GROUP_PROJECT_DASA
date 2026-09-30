@@ -47,7 +47,7 @@ public:
         }
         head = nullptr;
         tail = nullptr;
-        sizeList = 0;
+        size = 0;
     }
 
     // Thêm phần tử vào đầu danh sách
@@ -62,7 +62,7 @@ public:
             tail = newNode;
         }
         head = newNode;
-        sizeList++;     
+        size++;     
     }
 
     // Thêm phần tử vào cuối danh sách
@@ -76,7 +76,7 @@ public:
             tail->next = newNode;
             tail = newNode;
         }
-        sizeList++;
+        size++;
     }
     // Xóa phần tử cuối danh sách, trả về false nếu danh sách rỗng
     bool popBack(){
@@ -89,41 +89,43 @@ public:
             head = nullptr;
         }
         delete target;
-        sizeList--;
+        size--;
         return true;
     }
 
     // Xóa phần tử bất kỳ trong danh sách
-    void Delete( const T& val){
+    void Delete(const T& val) {
         if (head == nullptr) return;
-        if (head->value == val)
-        {
-            Node *target = head;
+
+        if (head->value == val) {
+            Node* target = head;
             head = head->next;
 
-            if (head == nullptr){
+            if (head != nullptr) {
+                head->prev = nullptr;
+            } else {
                 tail = nullptr;
             }
             delete target;
+            size--;
             return;
         }
-        Node *temp = head;
-        while ( temp->next != nullptr && temp-> next-> value != val){
-            temp= temp -> next;
+        Node* target = head->next;
+        while (target != nullptr && target->value != val) {
+            target = target->next;
         }
-        if (temp->next == nullptr) {
-            return; 
+        if (target == nullptr) {
+            return;
         }
-        Node *target = temp-> next;
-        temp -> next = target-> next;
-        if (target == tail)
-            {
-                tail = temp;
-            }
+        target->prev->next = target->next;
+        if (target->next != nullptr) {
+            target->next->prev = target->prev;
+        } else {
+            tail = target->prev;
+        }
         delete target;
-        sizeList--;
+        size--;
     }
-
     // Trả về vị trí của phần tử cần tìm trong danh sách
     Node* Search( const T& value){
         Node *temp = head;
@@ -136,9 +138,18 @@ public:
         return nullptr;
     }
 
+    // Trả về phần tử thứ k trong danh sách (0 là phần tử đầu tiên)
+    T getAt(long long index) const {
+        Node* cur = head;
+        for (long long i = 0; i < index; i++){
+            cur = cur->next;
+        }
+        return cur->value;
+    }
+
     // Trả về kích thước list
     long long getSize() const {
-        return sizeList;
+        return size;
     }
 
     // Kiểm tra rỗng
