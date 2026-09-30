@@ -24,9 +24,10 @@ struct Entry
 };
 
 
+template <typename V>
 class HashTable{
     private:
-        vector<DoubleLinkedList<Entry>> buckets;
+        vector<DoubleLinkedList<Entry<V>>> buckets;
         int count; // biến đếm số lượng Entry có trong HashTable
 
         //Hàm băm -> mã băm
@@ -39,7 +40,7 @@ class HashTable{
             return hashCode(key) % buckets.size();
         }
 
-        void rawInsert (const string &key, const string &value){
+        void rawInsert (const string &key, const V &value){
             int index = slotOf(key);
             //Tìm key trong buckets, nếu có thì cập nhật giá trị
             Entry* entry = buckets[index].Search(Entry(key, value));
@@ -59,8 +60,21 @@ class HashTable{
             count = 0;
         }
 
+        //Trả về con trỏ tới value (nếu null thì không phải sao chép)
+        V* find(const string& key) {
+            Entry<V>* entry = buckets[slotOf(key)].Search(Entry<V>(key, V()));
+            return entry != nullptr ? &entry->value : nullptr;
+        }
+ 
+        const V* find(const string& key) const {
+            const Entry<V>* entry = buckets[slotOf(key)].Search(Entry<V>(key, V()));
+            return entry != nullptr ? &entry->value : nullptr;
+        }
+
+
+
         //Thêm một Entry
-        void put(const string& key, const string& value) {
+        void put(const string& key, const V& value) {
             rawInsert(key, value);
             //Kiểm tra buckets sắp đầy hay chưa (áp dụng công thức)
             if ((double) count / buckets.size() > 0.75) {
@@ -69,37 +83,43 @@ class HashTable{
         }
 
         //Lấy giá trị
-        bool get(const string& key, string& result) const {
-            int index = slotOf(key);
-            // Tìm Entry có key tương ứng
-            Entry* entry = buckets[index].Search(Entry(key, ""));
-            if (entry != nullptr) {
-                result = entry->value;
-                return true;
-            }
-            return false;
+        bool get(const string& key, V& result) const {
+            const V* value = find(key);
+            if (value == nullptr) return false;
+            result = *value;
+            return true;
         }
-
-        //Xóa một buckets
+ 
+        //Kiểm tra key có tồn tại không
+        bool contains(const string& key) const {
+            return find(key) != nullptr;
+        }
+ 
+        //Xóa một Entry
         bool remove(const string& key) {
-            int index = slotOf(key);
-            Entry* entry = buckets[index].Search(Entry(key, ""));
-            if (entry == nullptr) return false;
-            buckets[index].Delete(*entry);
+            size_t index = slotOf(key);
+            if (buckets[index].Search(Entry<V>(key, V())) == nullptr) return false;
+            buckets[index].Delete(Entry<V>(key, V()));
             count--;
             return true;
         }
-
+ 
+        //Số lượng Entry
+        int size() const {
+            return count;
+        }
+ 
         //Tăng kích thước
         void resize(int new_capacity) {
-            vector<DoublyLinkedList<Entry>> old_buckets = buckets;
+            // move thay vì copy để không sao chép cả các danh sách
+            vector<DoubleLinkedList<Entry<V>>> old_buckets = std::move(buckets);
             buckets.clear();
             buckets.resize(new_capacity);
             count = 0;
-
+ 
             for (const auto& bucket : old_buckets) {
                 // Duyệt các Entry trong bucket
-                for (const Entry& entry : bucket) {
+                for (const Entry<V>& entry : bucket) {
                     rawInsert(entry.key, entry.value);
                 }
             }
