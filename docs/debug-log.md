@@ -6,7 +6,7 @@
 
 | STT | Ngày | Người phát hiện | File/Module | Mô tả lỗi (Bug Description) | Nguyên nhân (Root Cause) | Cách khắc phục (Solution) | Trạng thái |
 |:---:|:---:|:---|:---|:---|:---|:---|:---:|
-| 1 | 18/09 | Hoàng | `HashTable.cpp` | Chương trình bị chậm bất thường khi thêm 100k vé | Hàm băm (Hash function) bị va chạm quá nhiều, dẫn đến danh sách liên kết trong mỗi bucket quá dài | Đổi hàm băm từ đơn giản sang dùng thuật toán FNV-1a, tăng kích thước bảng băm | ✅ Đã sửa |
+| 1 | 30/09 | Hoàng | `DoubleLinkedList.cpp` | Thao tác DELETE quên chỉnh sửa lại size & prev | Lúc cài đặt bị thiếu sót | Chỉnh sửa cho phù hợp | ✅ Đã sửa |
 
 
 

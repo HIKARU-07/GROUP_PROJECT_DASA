@@ -1,62 +1,151 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
-
 using namespace std;
 
 template <typename T>
-class Stack //thiết kế stack bằng vector
+class Stack
 {
 private:
-    vector<T> data;
-    int capacity;
+
+    // Node của Linked List
+    struct Node
+    {
+        T data;
+        Node* next;
+
+        Node(const T& value)
+        {
+            data = value;
+            next = nullptr;
+        }
+    };
+
+    // Node ở đầu Stack
+    Node* topNode;
+
+    // Số phần tử
+    int count;
+
+    // Tối đa 10 phần tử
+    static const int MAX_SIZE = 10;
 
 public:
-    Stack(int cap = 10) //quy định chỉ chứa tối đa 10 lệnh thao tác
-    {
-        capacity = cap;
-    }
-    void push(const T& value)
-    {
-        data.push_back(value);
 
-        if (data.size() > capacity)
-            data.erase(data.begin());
+    // Constructor
+    Stack()
+    {
+        topNode = nullptr;
+        count = 0;
     }
+
+    // Destructor
+    ~Stack()
+    {
+        clear();
+    }
+
+    // Thêm phần tử
+    bool push(const T& value)
+    {
+        if (count == MAX_SIZE)
+        {
+            return false;
+        }
+
+        Node* newNode = new Node(value);
+
+        newNode->next = topNode;
+        topNode = newNode;
+
+        count++;
+
+        return true;
+    }
+
+    // Xóa phần tử đầu
     bool pop(T& value)
     {
-        if (data.empty())
+        if (topNode == nullptr)
+        {
             return false;
+        }
 
-        value = data.back();
-        data.pop_back();
+        Node* temp = topNode;
+
+        value = temp->data;
+        topNode = topNode->next;
+
+        delete temp;
+
+        count--;
 
         return true;
     }
+
+    // Xem phần tử đầu
     bool peek(T& value) const
     {
-        if (data.empty())
+        if (topNode == nullptr)
+        {
             return false;
+        }
 
-        value = data.back();
+        value = topNode->data;
+
         return true;
     }
+
+    // Kiểm tra rỗng
     bool empty() const
     {
-        return data.empty();
+        return topNode == nullptr;
     }
+
+    // Kiểm tra đầy
+    bool full() const
+    {
+        return count == MAX_SIZE;
+    }
+
+    // Lấy số phần tử
     int size() const
     {
-        return data.size();
+        return count;
     }
-    void print() const
+
+    // Lấy phần tử theo vị trí
+    bool get(int index, T& value) const
     {
-    for (int i = data.size() - 1; i >= 0; i--){
-        cout << data[i].operation
-             << " | "
-             << data[i].timestamp
-             << endl;
+        if (index < 0 || index >= count)
+        {
+            return false;
         }
+
+        Node* current = topNode;
+
+        for (int i = 0; i < index; i++)
+        {
+            current = current->next;
+        }
+
+        value = current->data;
+
+        return true;
+    }
+
+    // Xóa toàn bộ Stack
+    void clear()
+    {
+        while (topNode != nullptr)
+        {
+            Node* temp = topNode;
+
+            topNode = topNode->next;
+
+            delete temp;
+        }
+
+        count = 0;
     }
 };

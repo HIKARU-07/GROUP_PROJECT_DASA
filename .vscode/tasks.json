@@ -10,12 +10,14 @@
                 "/nologo",
                 "/Fe${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "${file}"
+            ]
             ],
             "options": {
                 "cwd": "${fileDirname}"
             },
             "problemMatcher": [
-                "$msCompile"
+                "$msCompile",
+                "$gcc"
             ],
             "group": {
                 "kind": "build",
