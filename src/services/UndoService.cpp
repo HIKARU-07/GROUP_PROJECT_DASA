@@ -16,13 +16,16 @@ time_t UndoService::toTime(const string& timestamp) const{
     return mktime(&t);
 }
 //Kiểm tra hành động có quá 15 phút hay không 
-bool UndoService::over15Minutes(const string& timestamp) const {
+bool UndoService::over15Minutes(const string& timestamp) const
+{
     time_t current = toTime(currentTime); //thời gian xét 
     time_t action = toTime(timestamp); //thời gian thực hiện hành động
     
     //timestamp không hợp lê
-    if (current == -1 || action == -1) return false;
+    if (current == -1 || action == -1) return true;
     
+  
+
     double diff = difftime(current, action); //tính khoảng cách thời gian
     return diff > 15 * 60;
 }
@@ -75,13 +78,11 @@ void UndoService::undo(){
     time_t actionTime = toTime(action.timestamp);
     //Xử lí timestamp không hợp lệ
     if (current == -1 || actionTime == -1){
-        undoStack.pop(action);
         cout << "FAILED DATA" << endl;
         return;
     }
     //Xử lí khi hành động vượt quá 15 phút
     if (over15Minutes(action.timestamp)){
-        undoStack.pop(action);
         cout << "FAILED DATA" << endl;
         return;
     }
