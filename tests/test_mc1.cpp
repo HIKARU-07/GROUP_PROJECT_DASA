@@ -1,11 +1,25 @@
+//   g++ -std=c++17 -O2 test_mc1.cpp ../src/services/TicketService.cpp -o test_mc1
+//   ./test_mc1
+//
+// data/tickets.txt:        dong 1 = so dong ve, cac dong sau co 8 truong ngan cach bang '|'
+//   bookingId|customerName|movieName|showtime|cinemaRoom|seats|ticketStatus|cinemaAddress
+// data/mc1_testcases.txt:  dong 1 = so test, cac dong sau:
+//   bookingId|currentTime|KET_QUA_MONG_DOI
+ 
 #include "../src/services/TicketService.h"
-
+ 
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-
+ 
 using namespace std;
-
+ 
+// Duong dan toi 2 file txt 
+const string TICKET_FILE = "D:/DSA/DO_AN_CUOI_KY/GROUP_PROJECT_DASA-main/data/tickets.txt";
+const string TESTCASE_FILE = "D:/DSA/DO_AN_CUOI_KY/GROUP_PROJECT_DASA-main/data/mc1_testcases.txt";
+ 
 string resultToString(CheckInResult res) {
     switch (res) {
         case CheckInResult::VALID:          return "VALID";
@@ -13,105 +27,76 @@ string resultToString(CheckInResult res) {
         case CheckInResult::EXPIRED:        return "EXPIRED";
         case CheckInResult::NOT_FOUND:      return "NOT_FOUND";
         case CheckInResult::INVALID_FORMAT: return "INVALID_FORMAT";
-        default:                            return "UNKNOWN";
     }
+    return "UNKNOWN";
 }
-
-// Ticket có 8 field nên phải gán đúng tên field, không dùng {a, b, c}
-Ticket makeTicket(const string& id, const string& showtime, const string& status) {
-    Ticket t;
-    t.bookingId    = id;
-    t.showtime     = showtime;
-    t.ticketStatus = status;
-    return t;
+ 
+// Tach mot dong theo dau '|'
+vector<string> split(const string& line) {
+    vector<string> parts;
+    stringstream ss(line);
+    string item;
+    while (getline(ss, item, '|')) parts.push_back(item);
+    if (!line.empty() && line.back() == '|') parts.push_back("");
+    return parts;
 }
-
-struct TestCase {
-    string bookingId;
-    string currentTime;
-    CheckInResult expected;
-};
-
+ 
+// Doc file, tra ve cac dong du lieu (bo dong dau, dong trong, dong '#')
+vector<string> readLines(const string& path) {
+    vector<string> lines;
+    ifstream fin(path);
+    if (!fin) return lines;
+ 
+    string line;
+    bool firstLine = true;
+    while (getline(fin, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.empty() || line[0] == '#') continue;
+        if (firstLine) { firstLine = false; continue; }   // dong dau = so luong
+        lines.push_back(line);
+    }
+    return lines;
+}
+ 
 int main() {
-
-    TicketService service(100);
-
-    // Thêm các vé mẫu vào bảng băm
-    service.addTicket(makeTicket("VN-CINEMA-00001A", "2026-09-30 18:00", "UNUSED"));
-    service.addTicket(makeTicket("VN-CINEMA-00002B", "2026-09-30 18:00", "USED"));
-    service.addTicket(makeTicket("VN-CINEMA-00003C", "2026-02-28 10:00", "UNUSED"));
-    service.addTicket(makeTicket("VN-CINEMA-00004D", "2026-12-31 23:30", "UNUSED"));
-
-    // Kiểm tra tính năng ghi đè vé trùng ID (UNUSED -> USED)
-    service.addTicket(makeTicket("VN-CINEMA-00005E", "2026-09-30 18:00", "UNUSED"));
-    service.addTicket(makeTicket("VN-CINEMA-00005E", "2026-09-30 18:00", "USED"));
-
-    // Ghi đè không được làm tăng số lượng vé: 5 vé khác nhau
-    cout << "ticketCount = " << service.getTicketCount() << " (mong đợi 5)\n\n";
-
-    const CheckInResult V  = CheckInResult::VALID;
-    const CheckInResult E  = CheckInResult::EXPIRED;
-    const CheckInResult U  = CheckInResult::USED;
-    const CheckInResult NF = CheckInResult::NOT_FOUND;
-    const CheckInResult IF = CheckInResult::INVALID_FORMAT;
-
-    vector<TestCase> tests = {
-        // 1. HỢP LỆ (VALID)
-        {"VN-CINEMA-00001A", "2026-09-30 18:00", V},  // Đúng giờ chiếu
-        {"VN-CINEMA-00001A", "2026-09-30 19:30", V},  // Soát vé sau 1.5 giờ
-        {"VN-CINEMA-00001A", "2026-09-30 21:00", V},  // Chạm đúng mốc 3 giờ (180 phút)
-        {"VN-CINEMA-00001A", "2026-09-30 17:00", V},  // Soát vé sớm trước giờ chiếu
-        {"VN-CINEMA-00003C", "2026-02-28 12:00", V},  // Ngày cuối tháng 02
-        {"VN-CINEMA-00004D", "2027-01-01 01:30", V},  // Soát vé qua giao thừa năm mới
-
-        // 2. HẾT HẠN (EXPIRED)
-        {"VN-CINEMA-00001A", "2026-09-30 21:01", E},  // Quá 3 giờ 1 phút
-        {"VN-CINEMA-00001A", "2026-10-01 18:00", E},  // Quá 1 ngày
-        {"VN-CINEMA-00003C", "2026-03-01 10:00", E},  // Hết hạn sang tháng 03
-        {"VN-CINEMA-00004D", "2027-01-01 03:00", E},  // Quá hạn sang năm mới
-        {"VN-CINEMA-00002B", "2026-09-30 21:05", E},  // Vừa USED vừa EXPIRED (ưu tiên EXPIRED)
-
-        // 3. ĐÃ SỬ DỤNG (USED)
-        {"VN-CINEMA-00002B", "2026-09-30 18:30", U},  // Vé đã dùng còn trong thời hạn
-        {"VN-CINEMA-00005E", "2026-09-30 18:30", U},  // Vé ghi đè trạng thái sang USED
-
-        // 4. KHÔNG TÌM THẤY (NOT_FOUND)
-        {"VN-CINEMA-99999Z", "2026-09-30 19:00", NF}, // Đúng định dạng nhưng không có trong DB
-        {"VN-CINEMA-00000A", "2026-09-30 19:00", NF}, // Mã chưa từng được thêm
-
-        // 5. SAI ĐỊNH DẠNG MÃ VÉ (INVALID_FORMAT)
-        {"VN-CINEMA-1234",    "2026-09-30 19:00", IF}, // Quá ngắn
-        {"VN-CINEMA-123456A", "2026-09-30 19:00", IF}, // Quá dài
-        {"VN-CINEMA-12A45B",  "2026-09-30 19:00", IF}, // Có chữ trong cụm 5 số
-        {"VN-CINEMA-12345#",  "2026-09-30 19:00", IF}, // Ký tự đặc biệt ở cuối
-        {"XX-CINEMA-12345A",  "2026-09-30 19:00", IF}, // Sai tiền tố
-
-        // 6. SAI ĐỊNH DẠNG THỜI GIAN (INVALID_FORMAT)
-        {"VN-CINEMA-00001A", "2026-09-30 25:00", IF}, // Giờ > 23
-        {"VN-CINEMA-00001A", "2026-09-30 20:60", IF}, // Phút > 59
-        {"VN-CINEMA-00001A", "2026-02-29 10:00", IF}, // 29/02 không được hỗ trợ
-        {"VN-CINEMA-00001A", "2026-04-31 10:00", IF}, // Tháng 4 chỉ có 30 ngày
-        {"VN-CINEMA-00001A", "2026/09/30 19:00", IF}, // Sai ký tự phân cách
-        {"VN-CINEMA-00001A", "2026-09-3019:00",  IF}  // Thiếu khoảng trắng
-    };
-
-    int failed = 0;
-
-    for (const TestCase& tc : tests) {
-        CheckInResult result = service.checkTicket(tc.bookingId, tc.currentTime);
-        bool ok = (result == tc.expected);
-        if (!ok) failed++;
-
-        cout << tc.bookingId << "|" << tc.currentTime << "|"
-             << resultToString(result);
-        if (!ok)
-            cout << "   <-- SAI, mong đợi " << resultToString(tc.expected);
-        cout << '\n';
+    // 1. Doc file ve
+    vector<string> ticketLines = readLines(TICKET_FILE);
+    if (ticketLines.empty()) {
+        cout << "Khong doc duoc " << TICKET_FILE << "\n";
+        return 2;
     }
-
-    cout << "\nTong: " << tests.size() << " test, "
-         << (tests.size() - failed) << " dung, "
-         << failed << " sai\n";
-
+ 
+    TicketService service(ticketLines.size());
+    for (const string& line : ticketLines) {
+        vector<string> f = split(line);
+        if (f.size() != 8) continue;
+        service.addTicket(Ticket{f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]});
+    }
+    cout << "Doc " << ticketLines.size() << " dong ve, ticketCount = "
+         << service.getTicketCount() << "\n";
+ 
+    // 2. Doc file test va chay
+    vector<string> testLines = readLines(TESTCASE_FILE);
+    if (testLines.empty()) {
+        cout << "Khong doc duoc " << TESTCASE_FILE << "\n";
+        return 2;
+    }
+ 
+    int failed = 0;
+    for (const string& line : testLines) {
+        vector<string> f = split(line);
+        if (f.size() != 3) continue;
+ 
+        string result = resultToString(service.checkTicket(f[0], f[1]));
+        if (result != f[2]) {
+            failed++;
+            cout << "SAI: " << f[0] << "|" << f[1]
+                 << " -> " << result << " (mong doi " << f[2] << ")\n";
+        }
+    }
+ 
+    cout << "\nTong: " << testLines.size() << " test, "
+         << (testLines.size() - failed) << " dung, " << failed << " sai\n";
     return failed == 0 ? 0 : 1;
 }
+ 

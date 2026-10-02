@@ -1,6 +1,8 @@
 #include "BookingService.h"
 
 #include <cctype>
+#include <sstream>
+#include <iostream>
 
 bool BookingService::validRequestId(
     const string& requestId
@@ -155,4 +157,58 @@ BookingService::process() {
     }
 
     return results;
+}
+
+void BookingService::run() {
+    int n;
+
+    cout << "Nhap so yeu cau n: ";
+    cin >> n;
+    cin.ignore();
+
+    cout << "Nhap " << n
+         << " dong: requestId|showtimeId|seatId|customerId|timestamp|status\n";
+
+    for (int i = 0; i < n; i++) {
+        string line;
+        getline(cin, line);
+
+        stringstream ss(line);
+
+        string requestId;
+        string showtimeId;
+        string seatId;
+        string customerId;
+        string timestamp;
+        string status;
+
+        getline(ss, requestId, '|');
+        getline(ss, showtimeId, '|');
+        getline(ss, seatId, '|');
+        getline(ss, customerId, '|');
+        getline(ss, timestamp, '|');
+        getline(ss, status, '|');
+
+        addRequest(
+            BookingRequest(
+                requestId,
+                showtimeId,
+                seatId,
+                customerId,
+                timestamp,
+                status
+            )
+        );
+    }
+
+    vector<BookingResult> results = process();
+
+    cout << "Ket qua xu li\n";
+
+    for (const BookingResult& r : results) {
+        cout << r.requestId << " | "
+             << r.customerId << " | "
+             << r.seatId << " | "
+             << r.resultStatus << "\n";
+    }
 }
