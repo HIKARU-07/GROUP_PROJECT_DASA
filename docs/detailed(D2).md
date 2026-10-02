@@ -22,7 +22,7 @@ Do hệ thống phục vụ nhiều cụm rạp trên toàn quốc, dữ liệu 
 | `showtime` | Thời gian bắt đầu chiếu | String (YYYY-MM-DD HH:MM) | 2026-09-03 21:36 |
 | `cinema_address` | Địa điểm rạp chiếu phim | String | THUDUC |
 | `cinema_room` | Phòng chiếu phim | String | ROOM02 |
-| `seats` | Danh sách ghế ngồi đã đặt | String (phân tách bởi dấu phẩy) | A01,A02 |
+| `seats` | Ghế ngồi đã đặt | String | A01 |
 | `ticket_status` | Trạng thái của vé | String (VALID / USED) | USED |
 
 Giả định: Mỗi booking_id hợp lệ về định dạng đã được nạp vào hệ thống là duy nhất, tức là không có 2 bản ghi trùng booking_id trong dữ liệu gốc
@@ -64,9 +64,7 @@ Nếu mã vé không hợp lệ, hệ thống trả về một trong các mã l�
 -	1 <= Q <= 10^5 (số lượt quét vé tại cổng)
 -	Độ dài customer_name, movie_name, cinema_address từ 1 đến 50 kí tự (không được chứa khoảng trống)
 -	booking_id có định dạng kiểu VN-CINEMA-XXXXXY trong đó XXXXX là đúng 5 chữ số (0-9) và Y là đúng 1 chữ cái in hoa (A-Z)	
--	seats gồm 1 đến 10 ghế, mỗi ghế có định dạng kiểu [A-L][0-9]{0,1}, danh sách ghế phân tách bằng dấu phẩy (Ví dụ A01,A02)
 -	showtime có định dạng (YYYY-MM-DD HH:MM)
--	cinema_room có định dạng kiểu ROOM0[1-9] (Ví dụ ROOM04)
 -	Việc tra cứu không được phép làm thay đổi bất kì dữ liệu nào của vé.
 
 ---
