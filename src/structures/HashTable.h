@@ -7,12 +7,13 @@
 #include "DoubleLinkedList.h"
 using namespace std;
 
+template <typename V>
 struct Entry
 {
     string key;
-    string value;
+    V value;
 
-    Entry (const string &k, const string &v){
+    Entry (const string &k, const V &v){
         key = k;
         value = v;
     }
@@ -43,14 +44,14 @@ class HashTable{
         void rawInsert (const string &key, const V &value){
             int index = slotOf(key);
             //Tìm key trong buckets, nếu có thì cập nhật giá trị
-            Entry* entry = buckets[index].Search(Entry(key, value));
+            Entry<V>* entry = buckets[index].Search(Entry<V>(key, value));
             if (entry != nullptr){
                 entry->value = value;
                 return;
             }
 
             //Không có thì thêm Entry mới vò bucket
-            buckets[index].pushBack(Entry(key, value));
+            buckets[index].pushBack(Entry<V>(key, value));
             count++;
         }
     public:

@@ -3,7 +3,7 @@
 #include <istream>
 #include <string>
 #include <vector>
-#include "HashTable.h"
+#include "../src/structures/HashTable.h"
 using namespace std;
 
 // Một suất chiếu.
@@ -22,13 +22,13 @@ struct Showtime {
 class ShowtimeService {
 public:
     // Thêm một suất chiếu. Trả về false nếu dữ liệu không hợp lệ (suất đó bị bỏ qua)
-    bool add(string& movieId, const std::string& date,
-             string& showtimeId, const std::string& cinemaName,
-             string& room, const std::string& startTime,
-             string& endTime);
+    bool add(const string& movieId, const string& date,
+             const string& showtimeId, const string& cinemaName,
+             const string& room, const string& startTime,
+             const string& endTime);
 
     // Thêm dòng: MovieID|Date|ShowtimeID|CinemaName|CinemaRoom|StartTime|EndTime
-    bool addFromLine(string& line);
+    bool addFromLine(const string& line);
 
     // Đọc n dòng suất chiếu từ luồng
     // Trả về số suất đã thêm
@@ -36,19 +36,19 @@ public:
 
     // Đọc file
     // Trả về số suất hợp lệ đã thêm
-    long long loadFromFile(string& path);
+    long long loadFromFile(const string& path);
 
     // Các suất của movieId trong ngày date có t1 <= StartTime <= t2 đã sắp theo StartTime -> ShowtimeID -> CinemaRoom.
-    vector<Showtime> search(string& movieId, string& date, string& t1, string& t2) const;
+    vector<Showtime> search(const string& movieId, const string& date, const string& t1, const string& t2) const;
 
     // Như search nhưng nhận một dòng: MovieID|Date|T1|T2
-    vector<Showtime> searchFromLine(string& line) const;
+    vector<Showtime> searchFromLine(const string& line) const;
 
     // Tổng số suất chiếu hợp lệ đang lưu
     long long size() const { return total_; }
 
 private:
-    mutable vector<std::vector<Showtime>> groups_;
+    mutable vector<vector<Showtime>> groups_;
     mutable vector<char> sorted_;
 
     HashTable<int> index_;   // "MovieID|Date" -> chỉ số nhóm trong groups_
