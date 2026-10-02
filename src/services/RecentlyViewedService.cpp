@@ -55,22 +55,36 @@ void RecentlyViewedService::print() const {
 
 // Đọc input, xử lý, in output
 void RecentlyViewedService::run() {
-    clear();
+    int choice;
+    do {
+        cout << "\n===== RECENTLY VIEWED =====\n";
+        cout << "1. Xem phim\n";
+        cout << "2. Xem lich su xem phim\n";
+        cout << "0. Thoat\n";
+        cout << "Chon: ";
+        cin >> choice;
 
-    int n, m;
-    cin >> n >> m;
+        if (choice == 1) {
+            Movie movie;
 
-    for (int i = 0; i < n; i++){
-        Movie movie;
-        cin >> movie.movieId;
-        append(movie);
-    }
+            cout << "Nhap movie ID: ";
+            cin >> movie.movieId;
 
-    for (int i = 0; i < m; i++){
-        Movie movie;
-        cin >> movie.movieId;
-        view(movie);
-    }
+            view(movie);
 
-    print();
+            cout << "Da xem phim: "
+                 << movie.movieId << "\n";
+        }
+        else if (choice == 2) {
+            cout << "\nLich su xem phim gan day:\n";
+            print();
+        }
+        else if (choice == 0) {
+            cout << "Thoat Recently Viewed.\n";
+        }
+        else {
+            cout << "Lua chon khong hop le.\n";
+        }
+
+    } while (choice != 0);
 }
