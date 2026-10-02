@@ -8,7 +8,7 @@ using namespace std;
 
 int main() {
     ShowtimeService svc;
-    long long added = svc.loadFromFile("showtimes.txt");
+    long long added = svc.loadFromFile("D:/ITlord/DASA/GROUP_PROJECT_DASA/data/showtimes.txt");
     cout << "Added: " << added << "\n";
     assert(added == 6);
     assert(svc.size() == 6);
@@ -37,7 +37,7 @@ int main() {
     assert(svc.search("M1", "2026-10-01", "00:00", "23:59")[0].id == "S0");
 
     // Test 6: đọc từng dòng query từ file
-    ifstream qin("D:/Users/ITlord/DASA/GROUP_PROJECT_DASA/data/showtimes.txt");
+    ifstream qin("D:/ITlord/DASA/GROUP_PROJECT_DASA/data/showtimes.txt");
     string line;
     while (getline(qin, line))
         for (auto& s : svc.searchFromLine(line)) cout << s.toLine() << "\n";

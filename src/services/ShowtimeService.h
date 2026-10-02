@@ -3,7 +3,7 @@
 #include <istream>
 #include <string>
 #include <vector>
-#include "../src/structures/HashTable.h"
+#include "../structures/HashTable.h"
 using namespace std;
 
 // Một suất chiếu.
