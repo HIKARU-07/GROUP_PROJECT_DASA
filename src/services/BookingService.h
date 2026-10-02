@@ -42,6 +42,10 @@ public:
     );
 
     vector<BookingResult> process();
+
+    void run();
 };
+
+    
 
 #endif
