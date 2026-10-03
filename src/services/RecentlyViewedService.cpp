@@ -71,7 +71,8 @@ void RecentlyViewedService::run() {
             cin >> movie.movieId;
 
             view(movie);
-
+            
+            cout << "\n";
             cout << "Da xem phim: "
                  << movie.movieId << "\n";
         }

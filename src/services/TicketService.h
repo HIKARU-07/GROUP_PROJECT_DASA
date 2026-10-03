@@ -50,4 +50,6 @@ public:
     size_t getTicketCount() const { 
         return ticketCount; 
     }
+
+    void run();
 };

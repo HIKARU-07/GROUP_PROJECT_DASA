@@ -1,144 +1,174 @@
-#include "UndoService.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-using namespace std;
-//Xử lý thông tin đọc input timestamp
-//Input: YYYY-mm-dd HH:MM
-time_t UndoService::toTime(const string& timestamp) const{
-    tm t = {};
-    istringstream ss(timestamp);
-    ss >> get_time(&t, "%Y-%m-%d %H:%M");
-    if (ss.fail()){
-        return -1;
+    #include "UndoService.h"
+    #include <iostream>
+    #include <fstream>
+    #include <sstream>
+    #include <iomanip>
+    using namespace std;
+    //Xử lý thông tin đọc input timestamp
+    //Input: YYYY-mm-dd HH:MM
+    time_t UndoService::toTime(const string& timestamp) const{
+        tm t = {};
+        istringstream ss(timestamp);
+        ss >> get_time(&t, "%Y-%m-%d %H:%M");
+        if (ss.fail()){
+            return -1;
+        }
+        return mktime(&t);
     }
-    return mktime(&t);
-}
-//Kiểm tra hành động có quá 15 phút hay không 
-bool UndoService::over15Minutes(const string& timestamp) const
-{
-    time_t current = toTime(currentTime); //thời gian xét 
-    time_t action = toTime(timestamp); //thời gian thực hiện hành động
+    //Kiểm tra hành động có quá 15 phút hay không 
+    bool UndoService::over15Minutes(const string& timestamp) const
+    {
+        time_t current = toTime(currentTime); //thời gian xét 
+        time_t action = toTime(timestamp); //thời gian thực hiện hành động
+        
+        //timestamp không hợp lê
+        if (current == -1 || action == -1) return true;
+        
     
-    //timestamp không hợp lê
-    if (current == -1 || action == -1) return true;
-    
-  
 
-    double diff = difftime(current, action); //tính khoảng cách thời gian
-    return diff > 15 * 60;
-}
-//Đọc dữ liệu input từ file .txt
-void UndoService::loadInput(const string& filename){
-    ifstream file(filename);
-    if(!file.is_open()){
-        cout << "Can't open file." << endl;
-        return;
+        double diff = difftime(current, action); //tính khoảng cách thời gian
+        return diff > 15 * 60;
     }
-    int N;
-    file >> N;
-    file.ignore();
-    //Đọc thời gian hiện tại
-    getline(file, currentTime);
-    for (int i = 0; i < N; i++){
-        string line;
-        getline(file, line);
-        // Tìm dấu |
-        size_t pos = line.find('|');
+    //Đọc dữ liệu input từ file .txt
+    void UndoService::loadInput(const string& filename){
+        ifstream file(filename);
+        if(!file.is_open()){
+            cout << "Can't open file." << endl;
+            return;
+        }
+        int N;
+        file >> N;
+        file.ignore();
+        //Đọc thời gian hiện tại
+        getline(file, currentTime);
+        for (int i = 0; i < N; i++){
+            string line;
+            getline(file, line);
+            // Tìm dấu |
+            size_t pos = line.find('|');
+            UndoAction action;
+            // Không tìm thấy |
+            if (pos == string::npos)
+            {
+                continue;
+            }
+            //Bên trái |
+            action.operation = line.substr(0, pos);
+            //Bên phải |
+            action.timestamp = line.substr(pos + 1);
+            //Xóa khoảng tráng bên timestamp
+            if (!action.timestamp.empty() && action.timestamp[0] == ' '){
+                action.timestamp.erase(0, 1);
+            }
+            //Đưa hành động vào stack
+            undoStack.push(action);
+        }  
+        file.close();  
+    }
+    //Thực hiên Undo theo LIFO
+    void UndoService::undo(){
+        //Xét stack rỗng
+        if (undoStack.empty()){
+            cout << "FAILED DATA" << '\n';
+            return;
+        }
         UndoAction action;
-        // Không tìm thấy |
-        if (pos == string::npos)
+        undoStack.peek(action);
+        time_t current = toTime(currentTime);
+        time_t actionTime = toTime(action.timestamp);
+        //Xử lí timestamp không hợp lệ
+        if (current == -1 || actionTime == -1){
+            cout << "FAILED DATA" << endl;
+            return;
+        }
+        //Xử lí khi hành động vượt quá 15 phút
+        if (over15Minutes(action.timestamp)){
+            cout << "FAILED DATA" << endl;
+            return;
+        }
+        //Hành động hợp lệ 
+        undoStack.pop(action);
+        
+        //Thực hiện Undo
+
+        stringstream ss(action.operation);
+
+        string command;
+        string target;
+        
+        ss >> command >> target;
+
+        if (command == "SELECT_SEAT"){
+            cout << "Undo SELECT_SEAT: "
+                << target << endl;
+            cout << "SUCCESSFUL OPERATION" << endl;
+
+            return;
+        }
+
+        if (command == "ADD_COMBO")
         {
-            continue;
+            cout << "Undo ADD_COMBO: "
+                << target << endl;
+
+            cout << "SUCCESSFUL OPERATION" << endl;
+
+            return;
         }
-        //Bên trái |
-        action.operation = line.substr(0, pos);
-        //Bên phải |
-        action.timestamp = line.substr(pos + 1);
-        //Xóa khoảng tráng bên timestamp
-        if (!action.timestamp.empty() && action.timestamp[0] == ' '){
-            action.timestamp.erase(0, 1);
+        // Operation không hợp lệ
+        cout << "FAILED DATA" << endl;
+    }
+    // In Stack từ trên xuống
+    void UndoService::printStack() const
+    {
+        cout << endl;
+        cout << "Current Stack:" << endl;
+
+        if (undoStack.empty())
+        {
+            cout << "STACK EMPTY" << endl;
+            return;
         }
-        //Đưa hành động vào stack
-        undoStack.push(action);
-    }  
-    file.close();  
-}
-//Thực hiên Undo theo LIFO
-void UndoService::undo(){
-    //Xét stack rỗng
-    if (undoStack.empty()){
-        cout << "FAILED DATA" << '\n';
-        return;
-    }
-    UndoAction action;
-    undoStack.peek(action);
-    time_t current = toTime(currentTime);
-    time_t actionTime = toTime(action.timestamp);
-    //Xử lí timestamp không hợp lệ
-    if (current == -1 || actionTime == -1){
-        cout << "FAILED DATA" << endl;
-        return;
-    }
-    //Xử lí khi hành động vượt quá 15 phút
-    if (over15Minutes(action.timestamp)){
-        cout << "FAILED DATA" << endl;
-        return;
-    }
-    //Hành động hợp lệ 
-    undoStack.pop(action);
-    
-    //Thực hiện Undo
 
-    stringstream ss(action.operation);
+        for (int i = 0; i < undoStack.size(); i++)
+        {
+            UndoAction action;
 
-    string command;
-    string target;
-    
-    ss >> command >> target;
+            undoStack.get(i, action);
 
-    if (command == "SELECT_SEAT"){
-        cout << "Undo SELECT_SEAT: "
-             << target << endl;
-        cout << "SUCCESSFUL OPERATION" << endl;
-
-        return;
+            cout << action.operation
+                << " | "
+                << action.timestamp
+                << endl;
+        }
     }
 
-    if (command == "ADD_COMBO")
-    {
-        cout << "Undo ADD_COMBO: "
-             << target << endl;
+    void UndoService::run(){
+        string filename;
+        cout <<"Nhap ten file: ";
+        cin >> filename;
+        cin.ignore();
+        loadInput(filename);
+        
+        int choice;
 
-        cout << "SUCCESSFUL OPERATION" << endl;
+        do {
+            cout << "\n===== UNDO SERVICE =====\n";
+            cout << "1. Undo\n";
+            cout << "2. In Stack\n";
+            cout << "0. Thoat\n";
+            cout << "Chon: ";
 
-        return;
+            cin >> choice;
+
+            if (choice == 1){
+                undo();
+            } else if (choice == 2){
+                printStack();
+            } else if (choice == 0){
+                cout <<"Thoat Undo Service\n";
+            } else {
+                cout << "Lua chon khong hop le\n";
+            }
+        } while (choice != 0);
     }
-    // Operation không hợp lệ
-    cout << "FAILED DATA" << endl;
-}
-// In Stack từ trên xuống
-void UndoService::printStack() const
-{
-    cout << endl;
-    cout << "Current Stack:" << endl;
-
-    if (undoStack.empty())
-    {
-        cout << "STACK EMPTY" << endl;
-        return;
-    }
-
-    for (int i = 0; i < undoStack.size(); i++)
-    {
-        UndoAction action;
-
-        undoStack.get(i, action);
-
-        cout << action.operation
-             << " | "
-             << action.timestamp
-             << endl;
-    }
-}

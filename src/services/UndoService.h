@@ -29,4 +29,6 @@ public:
 
     // In Stack sau khi thực hiện hành động
     void printStack() const;
+
+    void run();
 };
