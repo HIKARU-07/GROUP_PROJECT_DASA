@@ -4,10 +4,10 @@
 ---
 *Nhóm em đã sử dụng AI để tạo ra form mẫu, sau đó chỉnh sửa lại theo đúng những gì nhóm chúng em thực hiện*
 ## I. Mục tiêu sử dụng AI
-Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một công cụ hỗ trợ nhằm:
-1. Gợi ý cấu trúc dữ liệu và giải thuật tối ưu.
-2. Hỗ trợ tìm lỗi (debug) và giải thích thông báo lỗi.
-3. Tối ưu hóa đoạn code.
+Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng em đã sử dụng trí tuệ nhân tạo AI như một trợ thủ đắc lực nhằm đạt được các mục tiêu cụ thể sau:
+1. Đề xuất cấu trúc dữ liệu phù hợp và giải thuật tối ưu để tối đa hóa hiệu suất của dự án, đảm bảo thông tin được tổ chức một cách hệ thống và truy cập nhanh chóng.
+2. Cung cấp hỗ trợ tìm kiếm và phân tích lỗi (debug), đồng thời giải thích rõ ràng các thông báo lỗi từ hệ thống, giúp tránh những hiểu nhầm không đáng có và nhanh chóng khắc phục sự cố trong quá trình phát triển mã nguồn.
+3. Nâng cao khả năng tối ưu hóa đoạn mã, giúp không chỉ cải thiện hiệu suất thực thi mà còn làm cho mã nguồn trở nên dễ đọc hơn, linh hoạt hơn trong việc sửa đổi về sau.
 
 *Nhóm cam kết không sử dụng AI để sinh ra toàn bộ mã nguồn chính, mọi đoạn code do AI gợi ý đều được thành viên trong nhóm kiểm tra, chạy thử và hiểu rõ logic trước khi áp dụng.*
 
@@ -25,6 +25,7 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 | 8 | 30/09 | Hiếu | test_mc1 | Sinh bộ testcase kiểm thử | Hãy giúp tôi sinh các testcase cho đầy đủ các trường hợp TicketService | Sinh ra danh sách testcase đầy đủ cho các trường hợp hợp lệ, hết hạn, đã dùng, không tìm thấy và sai định dạng |
 | 9 | 02/10 | Nhật | HashTable | Debug | Hãy kiểm tra giúp tôi HashTable vì sao vẫn còn xung đột với DoublyLinkedList | Cần phải thêm operator cho giống của DoubleLinkedList (DLL) để cho HashTable hiểu được cùng kiểu dữ liệu với DLL |
 | 10 | 02/10 | Nhật | test_showtime | Tìm hướng giải quyết | Dựa trên 6 tiêu chí để tìm kiếm một suất phù hợp, hãy giúp tôi viết code đúng yêu cầu, nếu sai thì nhảy ra ngay | Đúng như yêu cầu, kiểm tra lần lượt từng tiêu chí, nếu sai có thể fix nhanh chóng |
+| 11 | 03/10 | Hoàng | design.md | Vẽ sơ đồ kiến trúc hệ thống | Hãy vẽ sơ đồ kiến trúc hệ thống theo mô hình ba tầng theo mô tả sau: .... Yêu cầu hình vẽ: ... | AI trả ra là một hình vẽ sơ đồ kiến trúc hệ thống, đánh giá thiết kế đúng theo yêu cầu |
 
 ## III. Phản tư & Đánh giá (Reflection)
 
@@ -60,3 +61,5 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 ![Minh chứng 9](Image/minhchung9.png)
 - Minh chứng 10:
 ![Minh chứng 10](Image/minhchung10.png)
+- Minh chứng 11:
+![Minh chứng 11](Image/minhchung11.png)
