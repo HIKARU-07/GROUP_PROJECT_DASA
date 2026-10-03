@@ -320,29 +320,31 @@ T2 = 23:00
   • T1 ≤ StartTime ≤ T2
 -	Định dạng: ShowtimeID|CinemaName|CinemaRoom|StartTime|EndTime
 -	Các kết quả được sắp xếp theo StartTime tăng dần, nếu nhiều suất có cùng StartTime thì sắp xếp tiếp theo ShowtimeID rồi đến CinemaRoom.
-- Nếu không có suất phù hợp (hoặc dữ liệu truy vấn không hợp lệ) thì trả về danh sách rỗng và in "Khong co suat chieu nao phu hop."
+- Nếu không có suất phù hợp (hoặc dữ liệu truy vấn không hợp lệ) thì trả về danh sách rỗng và in "NOT FOUND!!".
 
 ---
 
 ### Ràng buộc
 -	1 ≤ N ≤ 10^6.
--	1 ≤ MovieID, CinemaID, Date, T1, T2.
--	MovieID, CinemaID, Date không chứa khoảng trắng và có độ dài từ 1 đến 50 ký tự.
+-   MovieID, ShowtimeID, CinemaName, CinemaRoom không rỗng và không chứa ký tự '|'.
+-	MovieID không chứa khoảng trắng và có độ dài từ 1 đến 50 ký tự.
 -	Date có kiểu định dạng YYYY-MM-DD 
 -	StartTime và EndTime có định dạng HH:MM.
 -	T1 và T2 có định dạng HH:MM, thuộc cùng một ngày quy ước tính theo 24 giờ 
 -	T1 <= T2 
--	Khoảng thời gian [T1, T2] bao gồm hai đầu mút.
+-	Khoảng thời gian [T1, T2] bao gồm hai đầu mút và áp dụng cho StartTime.
 -	Thao tác tìm kiếm không được làm thay đổi dữ liệu gốc.
 
 ---
 
 ### Trường hợp ngoại lệ (Edge cases)
--	Trong trường hợp T1 = T2,
--	MovieID, CinemaID không tồn tại.
--	Ngày yêu cầu không có lịch chiếu.
+-	Trong trường hợp T1 = T2, chỉ lấy các suất có StartTime đúng bằng T1.
+-	T1 > T2: trả về rỗng.
+-	MovieID không tồn tại: trả về rỗng.
+-	Ngày yêu cầu không có lịch chiếu: trả về rỗng.
 -	Thời điểm StartTime của phim trùng khớp chính xác từng phút với T1 hoặc T2
--	Cùng một thời điểm một bộ phim ở các phòng chiếu chiếu cùng lúc 
--	DATE rơi vào ngày 29/2 của năm không nhuận, hoặc định dạng hợp lí về chuỗi nhưng vô lí về mặt thực tế (Ví dụ: 2026-13-32 )
+-	Cùng một thời điểm một bộ phim chiếu ở nhiều phòng: sắp xếp theo ShowtimeID, rồi đến CinemaRoom.
+-	Date rơi vào ngày 29/2 của năm không nhuận, hoặc định dạng hợp lệ về chuỗi nhưng vô lí về mặt thực tế (Ví dụ: 2026-13-32): trả về rỗng.
+-	Giờ có định dạng đúng nhưng vô lí (Ví dụ: 24:00, 12:60): trả về rỗng.
 
 ---
