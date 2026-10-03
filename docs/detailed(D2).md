@@ -303,23 +303,24 @@ Dòng 1: Số nguyên N — số lượng suất chiếu.
 N dòng tiếp theo:
     MovieID|Date|ShowtimeID|CinemaName|CinemaRoom|StartTime|EndTime
 Dòng tiếp theo:
-    MovieID|Date|T1|T2
+    Truy vấn nhập từ bàn phím, lần lượt từng giá trị: `MovieID`, `Date`, `T1`, `T2` (nhập `exit` ở MovieID để thoát).
+
 Ví dụ:
 MovieID = DUNE2
-Date = 2026-09-05 
+Date = 2026-09-05
 T1 = 18:00
 T2 = 23:00
 
 ---
 
 ### Output
--	Với mỗi yêu cầu, in ra các Showtime thỏa mãn:
-•	MovieID = MovieID yêu cầu
-•	Date = Date yêu cầu
-•	T1 ≤ StartTime ≤ T2
+- Với mỗi truy vấn, in ra các Showtime thỏa mãn:
+  • MovieID = MovieID yêu cầu
+  • Date = Date yêu cầu
+  • T1 ≤ StartTime ≤ T2
 -	Định dạng: ShowtimeID|CinemaName|CinemaRoom|StartTime|EndTime
 -	Các kết quả được sắp xếp theo StartTime tăng dần, nếu nhiều suất có cùng StartTime thì sắp xếp tiếp theo ShowtimeID rồi đến CinemaRoom.
--	Nếu không có suất phù hợp thì trả về kết quả “NOT_FOUND”
+- Nếu không có suất phù hợp (hoặc dữ liệu truy vấn không hợp lệ) thì trả về danh sách rỗng và in "Khong co suat chieu nao phu hop."
 
 ---
 

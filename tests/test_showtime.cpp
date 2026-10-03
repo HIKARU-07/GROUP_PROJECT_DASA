@@ -40,7 +40,7 @@ int main() {
  
         vector<Showtime> result = svc.search(movieId, date, t1, t2);
         if (result.empty()) {
-            cout << "Khong co suat chieu nao phu hop." << endl;
+            cout << "NOT FOUND!!" << endl;
         } else {
             for (const Showtime& s : result)
                 cout << s.toLine() << endl;
