@@ -280,5 +280,5 @@ void TicketService::run(){
         } else {
             cout << "Lua chon khong hop le.\n";
         }
-    } while (choice != "2");
+    } while (choice != "0");
 }

@@ -5,6 +5,8 @@
 #include<string>
 #include<sstream>
 #include <fstream>
+#include <iostream>
+
 using namespace std;
 
 //Kiểm tra năm nhuận
@@ -212,4 +214,64 @@ vector<Showtime> ShowtimeService::search(const string& movieId, const string& da
         result.push_back(*it);
     }
     return result;
+}
+
+void ShowtimeService::run() {
+    string filename;
+
+    cout << "\n===== SHOWTIME SEARCH =====\n";
+    cout << "Nhap ten file: ";
+    cin >> filename;
+    cin.ignore();
+
+    long long added = loadFromFile(filename);
+    if (added < 0) {
+        cout << "Khong the mo file.\n";
+        return;
+    }
+    cout << "Da nap " << added << " suat chieu hop le.\n";
+
+    string choice;
+    do {
+        cout << "\n----- SHOWTIME MENU -----\n";
+        cout << "1. Tim suat chieu\n";
+        cout << "0. Thoat\n";
+        cout << "Chon: ";
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == "1") {
+            string movieId, date, t1, t2;
+
+            cout << "Nhap Movie ID: ";
+            cin >> movieId;
+            cin.ignore();
+
+            cout << "Nhap ngay (YYYY-MM-DD): ";
+            cin >> date;
+            cin.ignore();
+
+            cout << "Nhap gio bat dau T1 (HH:MM): ";
+            cin >> t1;
+            cin.ignore();
+
+            cout << "Nhap gio ket thuc T2 (HH:MM): ";
+            cin >> t2;
+            cin.ignore();
+
+            vector<Showtime> result = search(movieId, date, t1, t2);
+
+            cout << "\n===== KET QUA =====\n";
+            if (result.empty()) {
+                cout << "Khong co suat chieu phu hop.\n";
+            } else {
+                for (const Showtime& s : result)
+                    cout << s.toLine() << "\n";
+            }
+        } else if (choice == "0") {
+            cout << "Thoat Showtime Service.\n";
+        } else {
+            cout << "Lua chon khong hop le.\n";
+        }
+    } while (choice != "0");
 }
