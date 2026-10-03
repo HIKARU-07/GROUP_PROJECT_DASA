@@ -42,6 +42,12 @@ th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}t
 .pill{font-size:.8rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:.1rem .7rem}
 ::placeholder{color:#7d666d}
 .src{display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end;font-size:.85rem;color:var(--muted);margin:.8rem 0}.src .fname{min-width:15rem}.src .msg.bad{color:#f08a8f}.src input[type=file]{min-width:0;padding:.3rem}
+.viz{margin-top:1.8rem;border-top:1px dashed var(--line);padding-top:.6rem}.viz h3{font:700 1.1rem var(--disp)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.6rem 0}
+.nd{display:inline-block;background:var(--s1);border:1px solid var(--line);border-radius:6px;padding:.25rem .6rem;font-size:.85rem;text-align:center}
+.nd small{color:var(--muted)}.nd.hl{border-color:var(--acc);color:var(--acc)}.nd.dim{opacity:.35}.nd.empty{border-style:dashed;color:var(--muted)}
+.lvl{display:flex;justify-content:center;flex-wrap:wrap;gap:.8rem;margin:.6rem 0}.arrow{color:var(--muted)}
+.steps{margin:.5rem 0 0 1.3rem;color:var(--muted);font-size:.9rem}
 @media(max-width:700px){.tk{grid-template-columns:3.5rem 1fr}.tk .btn{grid-column:1/-1;margin:0 1rem 1rem}}
 </style>
 </head>
@@ -62,7 +68,7 @@ th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}t
     <label>Booking ID<input id="t-id" placeholder="VN-CINEMA-12345A" size="20"></label>
     <label>Current Time<input id="t-time" placeholder="YYYY-MM-DD HH:MM" size="18"></label>
     <button class="btn">Check Ticket</button>
-  </form><div id="t-out"></div>
+  </form><div id="t-out"></div><div class="viz" id="t-viz"></div>
 </section>
 
 <section class="sec" id="showtime">
@@ -73,7 +79,7 @@ th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}t
     <label>From<input id="s-a" placeholder="HH:MM" size="6"></label>
     <label>To<input id="s-b" placeholder="HH:MM" size="6"></label>
     <button class="btn">Search</button>
-  </form><div id="s-out"></div>
+  </form><div id="s-out"></div><div class="viz" id="s-viz"></div>
 </section>
 
 <section class="sec" id="undo">
@@ -92,7 +98,8 @@ th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}t
     <label>Movie ID<input id="r-id" placeholder="Nhập mã phim, ví dụ M1" size="22"></label>
     <button class="btn">View Movie</button>
     <button type="button" class="btn g" id="r-hist">View History</button>
-  </form><p class="muted" id="r-msg"></p><div class="posters" id="r-list"></div>
+    <button type="button" class="btn g" id="r-clear">Clear History</button>
+  </form><p class="muted" id="r-msg"></p><div class="posters" id="r-list"></div><div class="viz" id="r-viz"></div>
 </section>
 
 <section class="sec" id="booking">
@@ -108,9 +115,9 @@ th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}t
     <label>Status<select id="b-st"><option>PENDING</option><option>CANCELLED</option></select></label>
     <button class="btn">Add Request</button>
   </form>
-  <div class="row"><button class="btn" id="b-proc">Process Booking</button><button class="btn g" id="b-reset">Reset locks</button></div>
+  <div class="row"><button class="btn g" id="b-step">Process 1 Request</button><button class="btn" id="b-proc">Process Booking</button><button class="btn g" id="b-reset">Reset locks</button></div>
   <h3 style="margin-top:1rem">Booking Queue</h3><div id="b-queue"></div>
-  <h3 style="margin-top:1rem">Booking Results</h3><div id="b-res"><p class="muted">Chưa xử lý.</p></div>
+  <h3 style="margin-top:1rem">Booking Results</h3><div id="b-res"><p class="muted">Chưa xử lý.</p></div><div class="viz" id="b-viz"></div>
 </section>
 
 </main>
@@ -192,6 +199,15 @@ const api = (() => {
     return {result:'VALID', ticket:t};
   }
 
+  // Minh họa bảng băm: std::hash của C++ phụ thuộc trình biên dịch nên ở đây dùng FNV-1a và 16 bucket
+  const B = 16;
+  const h32 = str => { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+  function ticketTrace(id) {
+    const counts = new Array(B).fill(0), chain = [], idx = h32(id) % B;
+    for (const k of tickets.keys()) { const b = h32(k) % B; counts[b]++; if (b === idx) chain.push(k); }
+    return {hash: h32(id), idx, counts, chain, pos: chain.indexOf(id)};
+  }
+
   /* ---- ShowtimeService ---- */
   const leap = y => (y%4===0 && y%100!==0) || y%400===0;
   const validDate = d => {
@@ -231,6 +247,13 @@ const api = (() => {
       .sort((a, b) => a.startMin - b.startMin || cmp(a.id, b.id) || cmp(a.room, b.room));
   }
 
+  function showtimeGroup(movieId, date, t1, t2) {  // nhóm đã sắp + vị trí lower_bound(T1), để vẽ
+    const lo = parseTime(t1), hi = parseTime(t2), g = groups.get(movieId + '|' + date);
+    if (!g || lo < 0 || hi < 0 || lo > hi || !validMovie(movieId) || !validDate(date)) return null;
+    const items = g.slice().sort((a, b) => a.startMin - b.startMin || cmp(a.id, b.id) || cmp(a.room, b.room));
+    return {items, lo, hi, first: items.findIndex(x => x.startMin >= lo)};
+  }
+
   /* ---- UndoService (stack tối đa 10, đỉnh = phần tử cuối mảng) ---- */
   let stack = [], undoNow = '';
   const toTime = ts => {
@@ -261,28 +284,59 @@ const api = (() => {
 
   /* ---- RecentlyViewedService (MAX = 5) ---- */
   let recent = [];
-  function view(movieId) {
-    const i = recent.indexOf(movieId);
-    if (i >= 0) recent.splice(i, 1); else if (recent.length >= 5) recent.pop();
+  function view(movieId) {                         // trả về thông tin để vẽ danh sách liên kết
+    const before = [...recent], i = recent.indexOf(movieId);
+    let kind = 'added', evicted = null;
+    if (i >= 0) { recent.splice(i, 1); kind = 'moved'; }
+    else if (recent.length >= 5) { evicted = recent.pop(); kind = 'evicted'; }
     recent.unshift(movieId);
+    return {kind, evicted, before, after: [...recent]};
   }
 
-  /* ---- BookingService (hàng đợi ưu tiên: timestamp -> requestId) ---- */
-  let queue = [], locked = new Set();
-  const addRequest = r => queue.push(r);
-  function process() {
-    const out = [];
-    queue.sort((a, b) => cmp(a.timestamp, b.timestamp) || cmp(a.requestId, b.requestId));
-    queue.forEach(r => {
-      let s;
-      if (!/^REQ-\d{5}$/.test(r.requestId) || !/^[A-L]\d{1,2}$/.test(r.seatId)) s = 'INVALID';
-      else if (r.status === 'CANCELLED') s = 'CANCELLED';
-      else if (locked.has(r.showtimeId + '|' + r.seatId)) s = 'SEAT_TAKEN';
-      else { locked.add(r.showtimeId + '|' + r.seatId); s = 'LOCKED'; }
-      out.push({requestId:r.requestId, customerId:r.customerId, seatId:r.seatId, resultStatus:s});
-    });
-    queue = [];
-    return out;
+  /* ---- BookingService: min-heap (PriorityQueue): timestamp nhỏ hơn trước, bằng nhau thì requestId nhỏ hơn ---- */
+  let heap = [], arrival = [], locked = new Set();
+  const higher = (a, b) => a.timestamp !== b.timestamp ? a.timestamp < b.timestamp : a.requestId < b.requestId;
+  function addRequest(r) {                         // push + heapifyUp, trả về log để vẽ
+    heap.push(r); arrival.push(r);
+    let i = heap.length - 1;
+    const log = [`push ${r.requestId} vào cuối mảng, vị trí [${i}]`];
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (!higher(heap[i], heap[p])) { log.push(`so với cha [${p}] ${heap[p].requestId}: không ưu tiên hơn -> dừng`); break; }
+      log.push(`${heap[i].requestId} ưu tiên hơn cha [${p}] ${heap[p].requestId} -> đổi chỗ`);
+      [heap[i], heap[p]] = [heap[p], heap[i]]; i = p;
+    }
+    return {log, hl: [i]};
+  }
+  function popTop() {                              // pop + heapifyDown
+    const top = heap[0], log = [`lấy gốc ${top.requestId} (ưu tiên cao nhất)`];
+    heap[0] = heap[heap.length - 1]; heap.pop();
+    arrival.splice(arrival.indexOf(top), 1);
+    let i = 0;
+    if (heap.length) {
+      log.push(`đưa phần tử cuối ${heap[0].requestId} lên gốc rồi heapifyDown`);
+      while (true) {
+        const l = 2 * i + 1, r = l + 1; let m = i;
+        if (l < heap.length && higher(heap[l], heap[m])) m = l;
+        if (r < heap.length && higher(heap[r], heap[m])) m = r;
+        if (m === i) { log.push(`${heap[i].requestId} đã đúng chỗ [${i}]`); break; }
+        log.push(`đổi ${heap[i].requestId} với con [${m}] ${heap[m].requestId} (ưu tiên hơn)`);
+        [heap[i], heap[m]] = [heap[m], heap[i]]; i = m;
+      }
+    }
+    return {top, log, hl: [i]};
+  }
+  function evaluate(r) {                           // INVALID -> CANCELLED -> SEAT_TAKEN -> LOCKED
+    if (!/^REQ-\d{5}$/.test(r.requestId) || !/^[A-L]\d{1,2}$/.test(r.seatId)) return 'INVALID';
+    if (r.status === 'CANCELLED') return 'CANCELLED';
+    const k = r.showtimeId + '|' + r.seatId;
+    if (locked.has(k)) return 'SEAT_TAKEN';
+    locked.add(k); return 'LOCKED';
+  }
+  function step() {                                // xử lý 1 request ở gốc heap
+    if (!heap.length) return null;
+    const t = popTop(), r = t.top;
+    return {result: {requestId: r.requestId, customerId: r.customerId, seatId: r.seatId, resultStatus: evaluate(r)}, log: t.log, hl: t.hl};
   }
   const loadRequests = text => {
     const lines = text.split(/\r?\n/).filter(l => l.trim());
@@ -295,11 +349,12 @@ const api = (() => {
   };
 
   return {
-    loadTickets, checkTicket: async (...a) => checkTicket(...a),
-    loadShowtimes, searchShowtime: async (...a) => searchShowtime(...a),
+    loadTickets, ticketTrace, checkTicket: async (...a) => checkTicket(...a),
+    loadShowtimes, showtimeGroup, searchShowtime: async (...a) => searchShowtime(...a),
     undo: async t => undo(t), undoStack, undoLoad, undoDefaultTime: () => undoNow,
     view: async id => view(id), recent: () => [...recent],
-    addRequest, loadRequests, queue: () => [...queue], process: async () => process(),
+    clear: () => { recent = []; },
+    addRequest, loadRequests, queue: () => [...arrival], heap: () => [...heap], processOne: async () => step(),
     resetLocks: () => locked.clear(),
   };
 })();
@@ -322,6 +377,55 @@ $('menu').innerHTML = PAGES.map(p => `<button data-id="${p[0]}" onclick="go('${p
 $('tickets').innerHTML = PAGES.map((p, i) => `<div class="tk"><div class="n">${i+1}</div>
   <div><h3>${p[1]}</h3><p>${p[2]}</p></div><button class="btn" onclick="go('${p[0]}')">${p[3]}</button></div>`).join('');
 
+/* ---- Visualization ---- */
+const node = (txt, cls = '') => `<span class="nd ${cls}">${esc(txt)}</span>`;
+const stepsHtml = l => l.length ? `<ol class="steps">${l.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : '';
+
+function ticketViz(id, result) {                   // bảng băm: bucket + danh sách liên kết đôi
+  const box = $('t-viz');
+  if (result === 'INVALID_FORMAT') { box.innerHTML = '<h3>Bảng băm (xích)</h3><p class="muted">Sai định dạng nên dừng ngay (fail-fast), chưa tra bảng băm.</p>'; return; }
+  const t = api.ticketTrace(id), n = t.chain.length;
+  const shown = t.chain.slice(0, 8).map(k => node(k, k === id ? 'hl' : ''));
+  if (t.pos >= 8) shown.push('<span class="muted">…</span>', node(id, 'hl'));
+  const st = ['Định dạng mã vé và thời gian hợp lệ', `Băm mã vé → bucket ${t.idx}`,
+    t.pos >= 0 ? `Duyệt chuỗi: gặp vé ở nút thứ ${t.pos + 1}/${n}` : `Duyệt hết ${n} nút, không thấy → NOT_FOUND`];
+  if (t.pos >= 0) st.push({EXPIRED: 'Giờ hiện tại > giờ chiếu + 3 giờ → EXPIRED', USED: 'Chưa hết hạn nhưng ticketStatus = USED → USED', VALID: 'Chưa hết hạn và chưa dùng → VALID'}[result]);
+  box.innerHTML = `<h3>Bảng băm (xích)</h3>
+    <p class="muted" style="font-size:.85rem">Minh họa ${t.counts.length} bucket (số trong ngoặc = số vé). Bản C++ dùng std::hash và N/0.75 bucket nên chỉ số bucket có thể khác, cấu trúc xử lý giống nhau.</p>
+    <div class="chain">${t.counts.map((c, i) => `<span class="nd ${i === t.idx ? 'hl' : ''}">${i} <small>(${c})</small></span>`).join('')}</div>
+    <p style="font-size:.9rem">Chuỗi trong bucket ${t.idx}:</p>
+    <div class="chain">${shown.join('<span class="arrow">⇄</span>') || '<span class="muted">(rỗng)</span>'}</div>${stepsHtml(st)}`;
+}
+
+function showtimeViz(m, d, a, b) {                 // nhóm đã sắp + lower_bound
+  const g = api.showtimeGroup(m, d, a, b), box = $('s-viz');
+  if (!g) { box.innerHTML = `<h3>Nhóm suất chiếu</h3><p class="muted">Input không hợp lệ hoặc không có nhóm "${esc(m + '|' + d)}" → kết quả rỗng.</p>`; return; }
+  box.innerHTML = `<h3>Nhóm "${esc(m + '|' + d)}" (sắp theo StartTime → ID → Room)</h3><div class="chain">` +
+    g.items.map((s, i) => `<span class="nd ${s.startMin >= g.lo && s.startMin <= g.hi ? 'hl' : 'dim'}">${i === g.first ? '▼ ' : ''}${esc(s.id)} <small>${hm(s.startMin)}</small></span>`).join('') + '</div>' +
+    stepsHtml([`Tra bảng băm khóa "${m}|${d}" → nhóm có ${g.items.length} suất`, `lower_bound(T1 = ${a}) → vị trí ${g.first < 0 ? 'cuối nhóm' : g.first} (▼)`, `Duyệt tới khi StartTime > T2 = ${b}; suất sáng màu là kết quả`]);
+}
+
+function recentViz(v) {                            // danh sách liên kết đôi, tối đa 5 nút
+  const row = a => '<div class="chain"><span class="muted">HEAD</span>' +
+    Array.from({length: 5}, (_, i) => a[i] ? node(a[i], i === 0 ? 'hl' : '') : node('trống', 'empty')).join('<span class="arrow">⇄</span>') + '<span class="muted">TAIL</span></div>';
+  const st = {moved: ['Search: phim đã có trong danh sách', 'Delete nút cũ', 'pushFront: đưa lên đầu'],
+    evicted: ['Search: chưa có và danh sách đã đủ 5 (MAX)', `popBack: bỏ ${v.evicted} ở cuối`, 'pushFront: thêm phim mới vào đầu'],
+    added: ['Search: chưa có, còn chỗ trống', 'pushFront: thêm phim mới vào đầu']}[v.kind];
+  $('r-viz').innerHTML = `<h3>Danh sách liên kết đôi (MAX = 5)</h3><p class="muted" style="font-size:.85rem">Trước</p>${row(v.before)}<p class="muted" style="font-size:.85rem">Sau</p>${row(v.after)}${stepsHtml(st)}`;
+}
+
+function heapHtml(arr, hl = []) {                  // vẽ min-heap theo từng tầng + mảng
+  if (!arr.length) return '<p class="muted">Heap rỗng.</p>';
+  let out = '', i = 0, w = 1;
+  while (i < arr.length) {
+    out += '<div class="lvl">' + arr.slice(i, i + w).map((r, k) =>
+      `<span class="nd ${hl.includes(i + k) ? 'hl' : ''}"><small>[${i + k}]</small> ${esc(r.requestId)}<br><small>${esc(r.timestamp)}</small></span>`).join('') + '</div>';
+    i += w; w *= 2;
+  }
+  return out + `<p class="muted" style="font-size:.85rem">Mảng heap: [${arr.map(r => esc(r.requestId)).join(', ')}]</p>`;
+}
+const showHeap = (log, hl) => { $('b-viz').innerHTML = '<h3>Min-heap (PriorityQueue)</h3>' + heapHtml(api.heap(), hl) + stepsHtml(log); };
+
 /* Ticket */
 loadSource('ticket', 't-src', text => {
   $('t-info').textContent = `Đã nạp ${api.loadTickets(text)} ticket. Vé hết hạn sau giờ chiếu 3 giờ.`;
@@ -329,6 +433,7 @@ loadSource('ticket', 't-src', text => {
 $('t-form').onsubmit = async e => {
   e.preventDefault();
   const {result, ticket: t} = await api.checkTicket($('t-id').value.trim(), $('t-time').value.trim());
+  ticketViz($('t-id').value.trim(), result);
   $('t-out').innerHTML = `<div class="box"><p>${badge(result)}</p>` + (t ? `<dl style="margin-top:.7rem">
     <dt>Booking ID</dt><dd>${esc(t.bookingId)}</dd><dt>Customer</dt><dd>${esc(t.customerName)}</dd>
     <dt>Movie</dt><dd>${esc(t.movieName)}</dd><dt>Showtime</dt><dd>${esc(t.showtime)}</dd>
@@ -343,7 +448,9 @@ loadSource('showtime', 's-src', text => {
 });
 $('s-form').onsubmit = async e => {
   e.preventDefault();
-  const r = await api.searchShowtime($('s-m').value.trim(), $('s-d').value.trim(), $('s-a').value.trim(), $('s-b').value.trim());
+  const q = [$('s-m').value.trim(), $('s-d').value.trim(), $('s-a').value.trim(), $('s-b').value.trim()];
+  const r = await api.searchShowtime(...q);
+  showtimeViz(...q);
   $('s-out').innerHTML = r.length ? `<table><tr><th>Showtime ID</th><th>Cinema</th><th>Room</th><th>Start</th><th>End</th></tr>` +
     r.map(s => `<tr><td>${esc(s.id)}</td><td>${esc(s.cinemaName)}</td><td>${esc(s.room)}</td><td>${hm(s.startMin)}</td>
     <td>${hm(s.endMin)}${s.endMin < s.startMin ? ' (+1)' : ''}</td></tr>`).join('') + '</table>'
@@ -351,10 +458,10 @@ $('s-form').onsubmit = async e => {
 };
 
 /* Undo */
-function drawUndo() {
+function drawUndo() {                              // stack = danh sách liên kết, đỉnh ở trên, tối đa 10
   const s = api.undoStack();
-  $('u-stack').innerHTML = s.length ? '<p class="muted" style="margin-top:1rem">Current Stack (đỉnh ở trên)</p>' +
-    s.map(a => `<div><span>${esc(a.operation)}</span><span class="muted">${esc(a.timestamp)}</span></div>`).join('')
+  $('u-stack').innerHTML = s.length ? `<p class="muted" style="margin-top:1rem">Stack: ${s.length}/10 phần tử (MAX_SIZE = 10), đỉnh ở trên</p>` +
+    s.map((a, i) => `<div><span>${i === 0 ? '<b style="color:var(--acc)">top</b> ' : ''}${esc(a.operation)}</span><span class="muted">${esc(a.timestamp)}</span></div>`).join('')
     : '<div class="box">STACK EMPTY</div>';
 }
 const undoFromText = text => { api.undoLoad(text); $('u-time').value = api.undoDefaultTime(); $('u-res').innerHTML = ''; drawUndo(); };
@@ -372,7 +479,7 @@ $('r-form').onsubmit = async e => {
   e.preventDefault();
   const id = $('r-id').value.trim();
   if (!id) return;
-  await api.view(id);
+  recentViz(await api.view(id));
   $('r-msg').textContent = 'Da xem phim: ' + id;
   $('r-list').innerHTML = ''; $('r-id').value = '';
 };
@@ -383,6 +490,13 @@ $('r-hist').onclick = () => {
     : '<div class="box muted">Khong co lich su xem phim gan day</div>';
 };
 
+$('r-clear').onclick = () => {
+    api.clear();
+    $('r-msg').textContent = 'Da xoa lich su xem phim.';
+    $('r-list').innerHTML = '<div class="box muted">Khong co lich su xem phim gan day</div>';
+    $('r-viz').innerHTML = '';
+};
+
 /* Booking */
 function drawQueue() {
   const q = api.queue();
@@ -390,22 +504,36 @@ function drawQueue() {
     <td>${esc(r.customerId)}</td><td>${esc(r.timestamp)}</td><td>${badge(r.status)}</td></tr>`).join('') + '</table>'
     : '<p class="muted">Hàng đợi trống.</p>';
 }
+let rows = [];                                     // kết quả đã xử lý (cộng dồn)
+const drawRows = () => {
+  $('b-res').innerHTML = rows.length ? '<table>' + rows.map(x => `<tr><td>${esc(x.requestId)}</td><td>${esc(x.customerId)}</td>
+    <td>${esc(x.seatId)}</td><td>${badge(x.resultStatus)}</td></tr>`).join('') + '</table>' : '<p class="muted">Chưa xử lý.</p>';
+};
 $('b-form').onsubmit = e => {
   e.preventDefault();
-  api.addRequest({requestId:$('b-r').value.trim(), showtimeId:$('b-s').value.trim(), seatId:$('b-seat').value.trim(),
+  const t = api.addRequest({requestId:$('b-r').value.trim(), showtimeId:$('b-s').value.trim(), seatId:$('b-seat').value.trim(),
     customerId:$('b-c').value.trim(), timestamp:$('b-t').value.trim(), status:$('b-st').value});
-  drawQueue();
+  drawQueue(); showHeap(t.log, t.hl);
 };
 // Booking: hàng đợi để trống, chỉ nạp khi bấm Load file
-loadSource('booking', 'b-src', text => { api.loadRequests(text); drawQueue(); }, false);
-$('b-reset').onclick = () => { api.resetLocks(); $('b-res').innerHTML = '<p class="muted">Đã mở khóa tất cả ghế.</p>'; };
-$('b-proc').onclick = async () => {
-  const r = await api.process();
-  $('b-res').innerHTML = r.length ? '<table>' + r.map(x => `<tr><td>${esc(x.requestId)}</td><td>${esc(x.customerId)}</td>
-    <td>${esc(x.seatId)}</td><td>${badge(x.resultStatus)}</td></tr>`).join('') + '</table>' : '<p class="muted">Hàng đợi trống.</p>';
-  drawQueue();
-};
-drawQueue();
+loadSource('booking', 'b-src', text => {
+  const n = api.loadRequests(text); drawQueue();
+  showHeap([`Đã nạp ${n} request từ file, mỗi request được push vào heap`], []);
+}, false);
+async function processSteps(all) {                 // pop từng request ra khỏi heap rồi kiểm tra
+  let log = [], hl = [];
+  do {
+    const s = await api.processOne();
+    if (!s) { if (!log.length) log = ['Hàng đợi trống']; break; }
+    rows.push(s.result);
+    log.push(`Pop #${rows.length}: ${s.result.requestId} → ${s.result.resultStatus}`, ...s.log); hl = s.hl;
+  } while (all);
+  drawRows(); drawQueue(); showHeap(log, hl);
+}
+$('b-proc').onclick = () => processSteps(true);
+$('b-step').onclick = () => processSteps(false);
+$('b-reset').onclick = () => { api.resetLocks(); rows = []; drawRows(); $('b-res').innerHTML = '<p class="muted">Đã mở khóa tất cả ghế và xóa kết quả.</p>'; };
+drawQueue(); showHeap([], []);
 go('home');
 </script>
 </body>

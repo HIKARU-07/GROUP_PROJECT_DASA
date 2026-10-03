@@ -60,6 +60,7 @@ void RecentlyViewedService::run() {
         cout << "\n===== RECENTLY VIEWED =====\n";
         cout << "1. Xem phim\n";
         cout << "2. Xem lich su xem phim\n";
+        cout << "3. Xoa lich su xem phim\n";
         cout << "0. Thoat\n";
         cout << "Chon: ";
         cin >> choice;
@@ -79,6 +80,10 @@ void RecentlyViewedService::run() {
         else if (choice == 2) {
             cout << "\nLich su xem phim gan day:\n";
             print();
+        }
+        else if (choice == 3) {
+            clear();
+            cout << "Da xoa lich su xem phim.\n";
         }
         else if (choice == 0) {
             cout << "Thoat Recently Viewed.\n";
