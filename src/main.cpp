@@ -30,7 +30,7 @@ int main(){
         switch (choice)
         {
             case 1: { TicketService service;         service.run(); break; }
-            //case 2: { ShowtimeService service;       service.run(); break; }
+            case 2: { ShowtimeService service;       service.run(); break; }
             case 3: { UndoService service;           service.run(); break; }
             case 4: { RecentlyViewedService service; service.run(); break; }
             case 5: { BookingService service;        service.run(); break; }

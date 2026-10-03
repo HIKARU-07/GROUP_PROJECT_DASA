@@ -127,3 +127,5 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 ---
 
 ## V. SƠ ĐỒ KIẾN TRÚC
+  
+![So Do Kien Truc](Image/SoDoKienTruc.png)

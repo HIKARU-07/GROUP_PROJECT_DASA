@@ -36,6 +36,10 @@ public:
     // Tổng số suất chiếu hợp lệ đang lưu
     long long size() const { return total_; }
 
+
+    void run();
+
+
 private:
     mutable vector<vector<Showtime>> groups_;
     mutable vector<char> sorted_;
