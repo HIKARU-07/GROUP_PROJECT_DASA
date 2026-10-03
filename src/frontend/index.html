@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinema Booking System</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1a0e13;--s1:#26151b;--s2:#301b23;--line:#4a2c37;--text:#f4ebdf;--muted:#b39ca3;--acc:#f0b55b;--ink:#2a1500;
+--disp:"Fraunces",Georgia,serif;--body:"Instrument Sans","Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:400 1rem/1.55 var(--body);min-height:100vh}
+.wrap{width:min(960px,100% - 2rem);margin:auto}
+nav{border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem;padding:.9rem 0}
+.logo{font:700 1.25rem var(--disp);cursor:pointer}.logo b{color:var(--acc)}
+nav button{background:none;border:0;color:var(--muted);font:inherit;padding:.4rem .8rem;border-radius:99px;cursor:pointer}
+nav button.on{background:var(--s2);color:var(--acc)}
+h1{font:700 clamp(2.2rem,6vw,3.6rem)/1.05 var(--disp);margin:2.5rem 0 .6rem}
+h2{font:700 1.6rem var(--disp);margin:2rem 0 .3rem}
+.muted{color:var(--muted)}.sec{display:none;padding-bottom:3rem}.sec.on{display:block}
+/* Home: mỗi chức năng là một vé, số = lựa chọn trong menu main.cpp */
+.tk{display:grid;grid-template-columns:4.5rem 1fr auto;align-items:center;background:var(--s1);border:1px solid var(--line);border-radius:10px;margin-top:1rem}
+.tk .n{align-self:stretch;display:grid;place-items:center;background:var(--s2);border-right:2px dashed var(--line);border-radius:10px 0 0 10px;font:700 1.8rem var(--disp);color:var(--acc)}
+.tk div+div{padding:1rem 1.3rem}.tk h3{font:700 1.2rem var(--disp)}.tk p{color:var(--muted)}.tk .btn{margin-right:1.3rem}
+.btn{background:var(--acc);color:var(--ink);border:0;border-radius:8px;padding:.6rem 1.1rem;font:600 .95rem var(--body);cursor:pointer}
+.btn.g{background:none;color:var(--text);border:1px solid var(--line)}
+form,.row{display:flex;flex-wrap:wrap;gap:.8rem;align-items:flex-end;margin:1rem 0}
+label{display:grid;gap:.25rem;font-size:.85rem;color:var(--muted)}
+input,select,textarea{background:var(--s1);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;font:inherit;min-width:9rem}
+.box{background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;margin-top:1rem}
+.box dl{display:grid;grid-template-columns:8rem 1fr;gap:.3rem}.box dt{color:var(--muted)}
+table{width:100%;border-collapse:collapse;margin-top:.5rem}
+th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:400}
+.badge{display:inline-block;padding:.1rem .65rem;border-radius:99px;font-size:.85rem;font-weight:600}
+.ok{background:#1f3a2a;color:#7fd9a0}.warn{background:#3d3118;color:#f0c76b}.err{background:#40191d;color:#f08a8f}.info{background:#26303f;color:#9cc1f0}
+.stk div{background:var(--s1);border:1px solid var(--line);border-radius:8px;padding:.5rem .9rem;margin-top:.4rem;display:flex;justify-content:space-between}
+.stk div:first-child{border-color:var(--acc)}
+.posters{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem}
+.poster{width:8.5rem;height:12rem;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid var(--line);background:linear-gradient(160deg,var(--s2),#5a2a3a)}
+.poster b{font:700 1.15rem var(--disp);overflow-wrap:anywhere}
+.pill{font-size:.8rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:.1rem .7rem}
+::placeholder{color:#7d666d}
+.src{display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end;font-size:.85rem;color:var(--muted);margin:.8rem 0}.src .fname{min-width:15rem}.src .msg.bad{color:#f08a8f}.src input[type=file]{min-width:0;padding:.3rem}
+@media(max-width:700px){.tk{grid-template-columns:3.5rem 1fr}.tk .btn{grid-column:1/-1;margin:0 1rem 1rem}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><span class="logo" onclick="go('home')">Cine<b>Booking</b></span><div id="menu"></div></div></nav>
+<main class="wrap">
+
+<section class="sec" id="home">
+  <h1>Cinema Booking System</h1>
+  <p class="muted">Chọn chức năng bạn muốn thực hiện. Số trên vé = lựa chọn trong menu <code>main.cpp</code>.</p>
+  <div id="tickets"></div>
+  <p style="margin-top:2rem"><span class="pill">● Mock logic mode</span> <span class="muted">Đọc dữ liệu từ thư mục data/, logic mô phỏng bằng JavaScript (chưa gọi C++).</span></p>
+</section>
+
+<section class="sec" id="ticket">
+  <h2>Ticket Check-in</h2><p class="muted" id="t-info"></p><div class="src" id="t-src"></div>
+  <form id="t-form">
+    <label>Booking ID<input id="t-id" placeholder="VN-CINEMA-12345A" size="20"></label>
+    <label>Current Time<input id="t-time" placeholder="YYYY-MM-DD HH:MM" size="18"></label>
+    <button class="btn">Check Ticket</button>
+  </form><div id="t-out"></div>
+</section>
+
+<section class="sec" id="showtime">
+  <h2>Showtime Search</h2><p class="muted" id="s-info"></p><div class="src" id="s-src"></div>
+  <form id="s-form">
+    <label>Movie ID<input id="s-m" placeholder="M1" size="8"></label>
+    <label>Date<input id="s-d" placeholder="YYYY-MM-DD"></label>
+    <label>From<input id="s-a" placeholder="HH:MM" size="6"></label>
+    <label>To<input id="s-b" placeholder="HH:MM" size="6"></label>
+    <button class="btn">Search</button>
+  </form><div id="s-out"></div>
+</section>
+
+<section class="sec" id="undo">
+  <h2>Undo</h2><p class="muted">Chỉ hoàn tác hành động ở đỉnh stack nếu không quá 15 phút so với Current Time.</p><div class="src" id="u-src"></div>
+  <div class="row">
+    <label>Current Time<input id="u-time" placeholder="YYYY-MM-DD HH:MM"></label>
+    <button class="btn" id="u-undo">Undo Action</button>
+    
+  </div>
+  <div id="u-res"></div><div class="stk" id="u-stack"></div>
+</section>
+
+<section class="sec" id="recently">
+  <h2>Recently Viewed</h2><p class="muted">Tối đa 5 phim, phim mới xem nằm đầu danh sách.</p>
+  <form id="r-form">
+    <label>Movie ID<input id="r-id" placeholder="Nhập mã phim, ví dụ M1" size="22"></label>
+    <button class="btn">View Movie</button>
+    <button type="button" class="btn g" id="r-hist">View History</button>
+  </form><p class="muted" id="r-msg"></p><div class="posters" id="r-list"></div>
+</section>
+
+<section class="sec" id="booking">
+  <h2>Booking</h2><p class="muted">Request được xử lý theo timestamp sớm nhất, bằng nhau thì requestId nhỏ hơn.</p>
+  <p class="muted" style="font-size:.85rem">Định dạng: Request ID = REQ- + 5 chữ số · Seat = hàng A-L + 1-2 chữ số · Timestamp các request nên cùng định dạng.</p>
+  <div class="src" id="b-src"></div>
+  <form id="b-form">
+    <label>Request ID<input id="b-r" placeholder="REQ-00001"></label>
+    <label>Showtime<input id="b-s" placeholder="ST001" size="10"></label>
+    <label>Seat<input id="b-seat" placeholder="A05" size="8"></label>
+    <label>Customer ID<input id="b-c" placeholder="CUS001" size="9"></label>
+    <label>Timestamp<input id="b-t" placeholder="2026-10-03 15:00:00"></label>
+    <label>Status<select id="b-st"><option>PENDING</option><option>CANCELLED</option></select></label>
+    <button class="btn">Add Request</button>
+  </form>
+  <div class="row"><button class="btn" id="b-proc">Process Booking</button><button class="btn g" id="b-reset">Reset locks</button></div>
+  <h3 style="margin-top:1rem">Booking Queue</h3><div id="b-queue"></div>
+  <h3 style="margin-top:1rem">Booking Results</h3><div id="b-res"><p class="muted">Chưa xử lý.</p></div>
+</section>
+
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BADGE = {VALID:'ok',LOCKED:'ok',SUCCESSFUL:'ok',EXPIRED:'warn',USED:'warn',SEAT_TAKEN:'warn',
+  INVALID_FORMAT:'err',NOT_FOUND:'err',INVALID:'err',FAILED:'err',CANCELLED:'info',PENDING:'info'};
+const badge = s => `<span class="badge ${BADGE[s.split(' ')[0]] || 'info'}">${esc(s)}</span>`;
+
+/* ==================================================================
+   NGUỒN DỮ LIỆU - đọc đúng các file input mà code C++ đang dùng.
+   index.html nằm ở src/frontend/ nên thư mục data/ (gốc dự án) là ../../data/
+   Cần mở bằng Live Server; nếu mở trực tiếp (file://) trình duyệt chặn đọc file,
+   khi đó trang hiện ô "chọn file" để bạn chọn thủ công.
+   ================================================================== */
+const DATA_DIR = '../../data/';
+const FILES = {ticket:'tickets.txt', showtime:'showtimes.txt', undo:'UndoInput.txt', booking:'booking_requests.txt'};
+
+async function loadSource(key, boxId, onText, auto = true) {
+  const box = $(boxId);
+  box.className = 'src';
+  box.innerHTML = `<label>Tên file trong data/<input class="fname" value="${esc(FILES[key])}"></label>
+    <button type="button" class="btn g">Load file</button><span class="msg"></span>`;
+  const inp = box.querySelector('.fname'), msg = box.querySelector('.msg');
+  const apply = (text, from) => { onText(text); msg.className = 'msg'; msg.textContent = 'Đã nạp từ ' + from; };
+  const load = async () => {
+    const name = inp.value.trim();
+    try {
+      const r = await fetch(DATA_DIR + encodeURI(name), {cache: 'no-store'});
+      if (!r.ok) throw new Error(r.status);
+      apply(await r.text(), 'data/' + name);
+    } catch (err) {
+      msg.className = 'msg bad';
+      msg.innerHTML = `Không đọc được <code>data/${esc(name)}</code> (kiểm tra tên file và mở bằng Live Server). Hoặc chọn file: <input type="file" accept=".txt">`;
+      msg.querySelector('input').onchange = e => { const f = e.target.files[0]; if (f) f.text().then(t => apply(t, f.name)); };
+    }
+  };
+  box.querySelector('button').onclick = load;
+  inp.onkeydown = e => { if (e.key === 'Enter') load(); };
+  if (auto) await load();
+}
+
+/* ==================================================================
+   MOCK SERVICE - mô phỏng đúng logic các service C++.
+   Sau này thay thân hàm bằng fetch('/api/...'); UI đã dùng await sẵn nên không phải sửa.
+   ================================================================== */
+const api = (() => {
+  /* ---- TicketService ---- */
+  const tickets = new Map();                       // bảng băm: bookingId -> ticket (trùng ID thì ghi đè)
+  function loadTickets(text) {                     // dòng 1 = N, tiếp theo N dòng vé
+    tickets.clear();
+    const lines = text.split(/\r?\n/), n = parseInt(lines[0]) || 0;
+    for (let i = 1; i <= n && i < lines.length; i++) {
+      const [bookingId = '', customerName, movieName, showtime = '', cinemaRoom, seats, ticketStatus, cinemaAddress] = lines[i].split('|');
+      tickets.set(bookingId, {bookingId, customerName, movieName, showtime, cinemaRoom, seats, ticketStatus, cinemaAddress});
+    }
+    return n;
+  }
+  const DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];   // Ticket KHÔNG xét năm nhuận (giống C++)
+  const checkId = id => /^VN-CINEMA-\d{5}[A-Za-z]$/.test(id);
+  const checkTime = dt => {
+    if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(dt)) return false;
+    const [y, mo, d, h, mi] = dt.split(/[- :]/).map(Number);
+    return y >= 1 && mo >= 1 && mo <= 12 && d >= 1 && d <= DAYS[mo-1] && h <= 23 && mi <= 59;
+  };
+  const toMin = dt => {                            // phút tính từ năm 1, mỗi năm 365 ngày
+    const [y, mo, d, h, mi] = dt.split(/[- :]/).map(Number);
+    let days = 365 * (y - 1) + d - 1;
+    for (let m = 1; m < mo; m++) days += DAYS[m-1];
+    return days * 1440 + h * 60 + mi;
+  };
+  function checkTicket(bookingId, currentTime) {   // INVALID_FORMAT -> NOT_FOUND -> EXPIRED -> USED -> VALID
+    if (!checkId(bookingId) || !checkTime(currentTime)) return {result:'INVALID_FORMAT'};
+    const t = tickets.get(bookingId);
+    if (!t) return {result:'NOT_FOUND'};
+    if (checkTime(t.showtime) && toMin(currentTime) > toMin(t.showtime) + 180) return {result:'EXPIRED', ticket:t};
+    if (t.ticketStatus === 'USED') return {result:'USED', ticket:t};
+    return {result:'VALID', ticket:t};
+  }
+
+  /* ---- ShowtimeService ---- */
+  const leap = y => (y%4===0 && y%100!==0) || y%400===0;
+  const validDate = d => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+    const [y, m, day] = d.split('-').map(Number);
+    if (y < 1 || m < 1 || m > 12) return false;
+    return day >= 1 && day <= (m===2 && leap(y) ? 29 : DAYS[m-1]);
+  };
+  const parseTime = t => {
+    if (!/^\d{2}:\d{2}$/.test(t)) return -1;
+    const [h, m] = t.split(':').map(Number);
+    return h > 23 || m > 59 ? -1 : h*60 + m;
+  };
+  const validMovie = s => s.length >= 1 && s.length <= 50 && !/[\s|]/.test(s);
+  const groups = new Map();                        // "MovieID|Date" -> [Showtime]
+  let loaded = 0;
+  function loadShowtimes(text) {
+    groups.clear(); loaded = 0;
+    text.split(/\r?\n/).forEach((l, i) => {
+      if (!l || (i === 0 && /^\d+$/.test(l))) return;
+      const [movieId = '', date = '', id = '', cinemaName = '', room = '', st = '', et = ''] = l.split('|');
+      const startMin = parseTime(st), endMin = parseTime(et);
+      if (!validMovie(movieId) || !validDate(date) || !id || !cinemaName || !room || startMin < 0 || endMin < 0) return;
+      const k = movieId + '|' + date;
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push({id, cinemaName, room, startMin, endMin});
+      loaded++;
+    });
+    return loaded;
+  }
+  const cmp = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+  function searchShowtime(movieId, date, t1, t2) { // lọc theo giờ BẮT ĐẦU trong [t1, t2]
+    const lo = parseTime(t1), hi = parseTime(t2);
+    if (!validMovie(movieId) || !validDate(date) || lo < 0 || hi < 0 || lo > hi) return [];
+    return (groups.get(movieId + '|' + date) || [])
+      .filter(s => s.startMin >= lo && s.startMin <= hi)
+      .sort((a, b) => a.startMin - b.startMin || cmp(a.id, b.id) || cmp(a.room, b.room));
+  }
+
+  /* ---- UndoService (stack tối đa 10, đỉnh = phần tử cuối mảng) ---- */
+  let stack = [], undoNow = '';
+  const toTime = ts => {
+    const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(ts.trim());
+    return m ? Date.UTC(+m[1], m[2]-1, +m[3], +m[4], +m[5]) / 60000 : -1;
+  };
+  function undoLoad(text) {
+    const lines = text.split(/\r?\n/), n = parseInt(lines[0]) || 0;
+    undoNow = lines[1] || ''; stack = [];
+    for (let i = 0; i < n; i++) {
+      const line = lines[2 + i];
+      if (line === undefined) break;
+      const pos = line.indexOf('|');
+      if (pos < 0) continue;
+      if (stack.length < 10) stack.push({operation: line.slice(0, pos), timestamp: line.slice(pos + 1).replace(/^ /, '')});
+    }
+  }
+  function undo(currentTime) {
+    if (!stack.length) return 'FAILED DATA';
+    const top = stack[stack.length - 1], cur = toTime(currentTime), act = toTime(top.timestamp);
+    if (cur < 0 || act < 0 || cur - act > 15) return 'FAILED DATA';   // quá 15 phút: KHÔNG pop
+    stack.pop();
+    const [cmd, target = ''] = top.operation.trim().split(/\s+/);
+    if (cmd === 'SELECT_SEAT' || cmd === 'ADD_COMBO') return `Undo ${cmd}: ${target}\nSUCCESSFUL OPERATION`;
+    return 'FAILED DATA';
+  }
+  const undoStack = () => [...stack].reverse();    // in từ đỉnh xuống
+
+  /* ---- RecentlyViewedService (MAX = 5) ---- */
+  let recent = [];
+  function view(movieId) {
+    const i = recent.indexOf(movieId);
+    if (i >= 0) recent.splice(i, 1); else if (recent.length >= 5) recent.pop();
+    recent.unshift(movieId);
+  }
+
+  /* ---- BookingService (hàng đợi ưu tiên: timestamp -> requestId) ---- */
+  let queue = [], locked = new Set();
+  const addRequest = r => queue.push(r);
+  function process() {
+    const out = [];
+    queue.sort((a, b) => cmp(a.timestamp, b.timestamp) || cmp(a.requestId, b.requestId));
+    queue.forEach(r => {
+      let s;
+      if (!/^REQ-\d{5}$/.test(r.requestId) || !/^[A-L]\d{1,2}$/.test(r.seatId)) s = 'INVALID';
+      else if (r.status === 'CANCELLED') s = 'CANCELLED';
+      else if (locked.has(r.showtimeId + '|' + r.seatId)) s = 'SEAT_TAKEN';
+      else { locked.add(r.showtimeId + '|' + r.seatId); s = 'LOCKED'; }
+      out.push({requestId:r.requestId, customerId:r.customerId, seatId:r.seatId, resultStatus:s});
+    });
+    queue = [];
+    return out;
+  }
+  const loadRequests = text => {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length && /^\d+$/.test(lines[0].trim())) lines.shift();
+    lines.forEach(l => {
+      const [requestId = '', showtimeId = '', seatId = '', customerId = '', timestamp = '', status = ''] = l.split('|');
+      addRequest({requestId, showtimeId, seatId, customerId, timestamp, status});
+    });
+    return lines.length;
+  };
+
+  return {
+    loadTickets, checkTicket: async (...a) => checkTicket(...a),
+    loadShowtimes, searchShowtime: async (...a) => searchShowtime(...a),
+    undo: async t => undo(t), undoStack, undoLoad, undoDefaultTime: () => undoNow,
+    view: async id => view(id), recent: () => [...recent],
+    addRequest, loadRequests, queue: () => [...queue], process: async () => process(),
+    resetLocks: () => locked.clear(),
+  };
+})();
+
+/* ==================================================================
+   UI
+   ================================================================== */
+const PAGES = [['ticket','Ticket','Kiểm tra trạng thái vé và check-in.','Check Ticket'],
+  ['showtime','Showtime','Tìm suất chiếu theo phim, ngày và khoảng thời gian.','Find Showtime'],
+  ['undo','Undo','Hoàn tác thao tác gần nhất trong vòng 15 phút.','Undo Action'],
+  ['recently','Recently Viewed','Xem tối đa 5 phim đã xem gần đây.','Recently Viewed'],
+  ['booking','Booking','Xử lý yêu cầu đặt ghế theo độ ưu tiên.','Book Seat']];
+
+function go(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === id));
+  document.querySelectorAll('#menu button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  window.scrollTo(0, 0);
+}
+$('menu').innerHTML = PAGES.map(p => `<button data-id="${p[0]}" onclick="go('${p[0]}')">${p[1]}</button>`).join('');
+$('tickets').innerHTML = PAGES.map((p, i) => `<div class="tk"><div class="n">${i+1}</div>
+  <div><h3>${p[1]}</h3><p>${p[2]}</p></div><button class="btn" onclick="go('${p[0]}')">${p[3]}</button></div>`).join('');
+
+/* Ticket */
+loadSource('ticket', 't-src', text => {
+  $('t-info').textContent = `Đã nạp ${api.loadTickets(text)} ticket. Vé hết hạn sau giờ chiếu 3 giờ.`;
+});
+$('t-form').onsubmit = async e => {
+  e.preventDefault();
+  const {result, ticket: t} = await api.checkTicket($('t-id').value.trim(), $('t-time').value.trim());
+  $('t-out').innerHTML = `<div class="box"><p>${badge(result)}</p>` + (t ? `<dl style="margin-top:.7rem">
+    <dt>Booking ID</dt><dd>${esc(t.bookingId)}</dd><dt>Customer</dt><dd>${esc(t.customerName)}</dd>
+    <dt>Movie</dt><dd>${esc(t.movieName)}</dd><dt>Showtime</dt><dd>${esc(t.showtime)}</dd>
+    <dt>Room</dt><dd>${esc(t.cinemaRoom)}</dd><dt>Seat</dt><dd>${esc(t.seats)}</dd>
+    <dt>Ticket status</dt><dd>${esc(t.ticketStatus)}</dd><dt>Cinema</dt><dd>${esc(t.cinemaAddress)}</dd></dl>` : '') + '</div>';
+};
+
+/* Showtime */
+const hm = m => String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0');
+loadSource('showtime', 's-src', text => {
+  $('s-info').textContent = `Đã nạp ${api.loadShowtimes(text)} suất chiếu hợp lệ. Lọc theo giờ bắt đầu nằm trong [From, To].`;
+});
+$('s-form').onsubmit = async e => {
+  e.preventDefault();
+  const r = await api.searchShowtime($('s-m').value.trim(), $('s-d').value.trim(), $('s-a').value.trim(), $('s-b').value.trim());
+  $('s-out').innerHTML = r.length ? `<table><tr><th>Showtime ID</th><th>Cinema</th><th>Room</th><th>Start</th><th>End</th></tr>` +
+    r.map(s => `<tr><td>${esc(s.id)}</td><td>${esc(s.cinemaName)}</td><td>${esc(s.room)}</td><td>${hm(s.startMin)}</td>
+    <td>${hm(s.endMin)}${s.endMin < s.startMin ? ' (+1)' : ''}</td></tr>`).join('') + '</table>'
+    : '<div class="box muted">Khong co suat chieu phu hop.</div>';
+};
+
+/* Undo */
+function drawUndo() {
+  const s = api.undoStack();
+  $('u-stack').innerHTML = s.length ? '<p class="muted" style="margin-top:1rem">Current Stack (đỉnh ở trên)</p>' +
+    s.map(a => `<div><span>${esc(a.operation)}</span><span class="muted">${esc(a.timestamp)}</span></div>`).join('')
+    : '<div class="box">STACK EMPTY</div>';
+}
+const undoFromText = text => { api.undoLoad(text); $('u-time').value = api.undoDefaultTime(); $('u-res').innerHTML = ''; drawUndo(); };
+loadSource('undo', 'u-src', undoFromText);
+$('u-undo').onclick = async () => {
+  const [l1, l2] = (await api.undo($('u-time').value.trim())).split('\n');
+  $('u-res').innerHTML = `<div class="box">${badge(l2 || l1)}${l2 ? `<p style="margin-top:.5rem">${esc(l1)}</p>` : ''}</div>`;
+  drawUndo();
+};
+drawUndo();
+
+/* Recently Viewed */
+// Giống console: "Xem phim" chỉ ghi nhận; lịch sử chỉ hiện khi bấm View History
+$('r-form').onsubmit = async e => {
+  e.preventDefault();
+  const id = $('r-id').value.trim();
+  if (!id) return;
+  await api.view(id);
+  $('r-msg').textContent = 'Da xem phim: ' + id;
+  $('r-list').innerHTML = ''; $('r-id').value = '';
+};
+$('r-hist').onclick = () => {
+  const l = api.recent();
+  $('r-msg').textContent = '';
+  $('r-list').innerHTML = l.length ? l.map((id, i) => `<div class="poster"><span class="muted">${i+1}</span><b>${esc(id)}</b></div>`).join('')
+    : '<div class="box muted">Khong co lich su xem phim gan day</div>';
+};
+
+/* Booking */
+function drawQueue() {
+  const q = api.queue();
+  $('b-queue').innerHTML = q.length ? '<table>' + q.map(r => `<tr><td>${esc(r.requestId)}</td><td>${esc(r.showtimeId)}</td><td>${esc(r.seatId)}</td>
+    <td>${esc(r.customerId)}</td><td>${esc(r.timestamp)}</td><td>${badge(r.status)}</td></tr>`).join('') + '</table>'
+    : '<p class="muted">Hàng đợi trống.</p>';
+}
+$('b-form').onsubmit = e => {
+  e.preventDefault();
+  api.addRequest({requestId:$('b-r').value.trim(), showtimeId:$('b-s').value.trim(), seatId:$('b-seat').value.trim(),
+    customerId:$('b-c').value.trim(), timestamp:$('b-t').value.trim(), status:$('b-st').value});
+  drawQueue();
+};
+// Booking: hàng đợi để trống, chỉ nạp khi bấm Load file
+loadSource('booking', 'b-src', text => { api.loadRequests(text); drawQueue(); }, false);
+$('b-reset').onclick = () => { api.resetLocks(); $('b-res').innerHTML = '<p class="muted">Đã mở khóa tất cả ghế.</p>'; };
+$('b-proc').onclick = async () => {
+  const r = await api.process();
+  $('b-res').innerHTML = r.length ? '<table>' + r.map(x => `<tr><td>${esc(x.requestId)}</td><td>${esc(x.customerId)}</td>
+    <td>${esc(x.seatId)}</td><td>${badge(x.resultStatus)}</td></tr>`).join('') + '</table>' : '<p class="muted">Hàng đợi trống.</p>';
+  drawQueue();
+};
+drawQueue();
+go('home');
+</script>
+</body>
+</html>
