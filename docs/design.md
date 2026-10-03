@@ -64,8 +64,6 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 - Giới hạn kích thước là 10 phần tử.
 - Cần kiểm tra thời gian để loại bỏ thao tác cũ.
 
-**Chọn:** `DoubleLinkedList.h` đóng vai trò như một Stack (thêm vào đầu, lấy ra từ đầu).
-
 **Lựa chọn:** Sử dụng `Stack.h` (SingleLinkedList) đóng vai trò như một Stack, thực hiện thêm vào đầu và lấy ra từ đầu.
 
 **Đánh đổi:** `Stack` cho phép thêm vào và xóa khỏi nhanh chóng ở đầu danh sách trong O(1). Để giới hạn 10 phần tử, chỉ cần kiểm tra kích thước trước khi thêm. Khi cần kiểm tra thời gian hết hạn, so sánh dấu thời gian khi xóa.

@@ -26,10 +26,17 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 | 9 | 02/10 | Nhật | HashTable | Debug | Hãy kiểm tra giúp tôi HashTable vì sao vẫn còn xung đột với DoublyLinkedList | Cần phải thêm operator cho giống của DoubleLinkedList (DLL) để cho HashTable hiểu được cùng kiểu dữ liệu với DLL |
 | 10 | 02/10 | Nhật | test_showtime | Tìm hướng giải quyết | Dựa trên 6 tiêu chí để tìm kiếm một suất phù hợp, hãy giúp tôi viết code đúng yêu cầu, nếu sai thì nhảy ra ngay | Đúng như yêu cầu, kiểm tra lần lượt từng tiêu chí, nếu sai có thể fix nhanh chóng |
 | 11 | 03/10 | Hoàng | design.md | Vẽ sơ đồ kiến trúc hệ thống | Hãy vẽ sơ đồ kiến trúc hệ thống theo mô hình ba tầng theo mô tả sau: .... Yêu cầu hình vẽ: ... | AI trả ra là một hình vẽ sơ đồ kiến trúc hệ thống, đánh giá thiết kế đúng theo yêu cầu |
+| 12 | 03/10 | Hoàng | Giaodien | Xây dựng một giao diện | Tôi sẽ cung cấp source code C++ hiện tại của project. Hãy đọc và phân tích source code trước, sau đó xây dựng một giao diện frontend phù hợp với chính các chức năng mà code hiện tại đang có. | AI đọc hiểu code C++, liệt kê danh sách tính năng và vẽ ra giao diện |
 
 ## III. Phản tư & Đánh giá (Reflection)
 
 ### 1. Phạm Minh Hoàng
+Điểm tốt: 
+- Chạy đúng và rõ ràng: Code xử lý đúng logic chính, phân chia các phần hợp lý và đặt tên biến, tên hàm dễ hiểu.
+  
+Điểm chưa tốt:
+- Code và hiệu năng: vẫn còn lặp code (cần gộp thành hàm chung), một vài chỗ chạy chưa tối ưu và chưa giải phóng bộ nhớ/tài nguyên gọn gàng. 
+- Gọn gàng: nhiều hàm còn quá dài cần tách nhỏ ra, đôi khi lại có những mã nguồn khá là ngắn gọn nằm ngoài khả năng hiểu biết của bản thân khiến cho việc phải tạo lệnh nhờ xử lí lại. 
 
 ### 2. Phạm Hồng Tiến Minh
 
@@ -63,3 +70,5 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 ![Minh chứng 10](Image/minhchung10.png)
 - Minh chứng 11:
 ![Minh chứng 11](Image/minhchung11.png)
+- Minh chứng 12:
+![Minh chứng 12](Image/minhchung12.png)

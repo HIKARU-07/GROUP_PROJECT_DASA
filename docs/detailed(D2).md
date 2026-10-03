@@ -209,17 +209,14 @@ Giả sử tình huống: Khách hàng chọn ghế A01 rồi chọn tiếp gh�
 
 ### Input:
 
-•	Dòng 1: chuỗi CURRENT_TIME (thời điểm thực hiện thao tác) (định dạng YYYY – MM – DD HH:MM)
-
-•	Dòng 2: số nguyên N – số lượng combo và ghế đã đặt trong hệ thống.
-•	N dòng tiếp theo: mỗi dòng là mỗi bản ghi (tức là thời gian ngay lúc chọn ghế hay combo), các thông tin được ghi cách nhau bởi “|”.
-operation|order_time
-•	Dòng cuối cùng: số nguyên Q – số lượng hoàn tác
-
+- Dòng 1: số nguyên N – số lượng combo và ghế đã đặt trong hệ thống.
+- Dòng 2: chuỗi CURRENT_TIME – thời điểm thực hiện thao tác (định dạng YYYY-MM-DD HH:MM).
+- N dòng tiếp theo: mỗi dòng là một bản ghi, các thông tin được ghi cách nhau bởi "|", theo dạng `operation|order_time`.
+- Dòng tiếp theo: số nguyên Q – số lượng hoàn tác. Các dòng sau đó là lệnh `UNDO`.
 ---
 
 ### Output:
-Với mỗi lần bấm hoàn tác, nếu thao tác thành công thì hệ thông sẽ in ra “SUCCESSFULL OPERATION”. Còn nếu thao tác không hợp lệ thì hệ thống sẽ in ra “FAILED DATA”.
+Với mỗi lần bấm hoàn tác, nếu thao tác thành công thì hệ thông sẽ in ra “SUCCESSFULL OPERATION”. Còn nếu thao tác không hợp lệ thì hệ thống sẽ in ra “FAILED DATA”. Khi xong tất cả thao tác `UNDO` sẽ in ra lại các thao tác còn trong stack
 
 ---
 
@@ -227,11 +224,9 @@ Với mỗi lần bấm hoàn tác, nếu thao tác thành công thì hệ thôn
 - CURRENT_TIME (thời gian thực hiện hoàn tác) phải lớn hơn hoặc bằng về mặt thời gian so với các order_time
 - Thao tác được thực hiện cuối cùng phải được hoàn tác đầu tiên
 - Thêm một thao tác mới vào lịch sử phải là thao tác đơn (tức là không thực hiện hai thao tác cùng một thời điểm).
-- Lịch sử hoàn tác chỉ lưu tối đa 10 thao tác gần nhất và tồn tại trong vòng 15 phút (tính từ lúc thao tác) để giới hạn bộ nhớ sử dụng.
+- Lịch sử hoàn tác chỉ lưu tối đa 10 thao tác gần nhất để giới hạn bộ nhớ sử dụng.
 - Khi số lượng vượt qua 10 thao tác thì thao tác cũ nhất sẽ bị loại khỏi lịch sử.
 - Lịch sử thao tác chỉ lưu ở bộ nhớ tạm nên việc khiến ứng dụng khởi động lại sẽ mất hết dữ liệu trong danh sách hoàn tác (tức không thể hoàn tác).
-- Tín năng hoàn tác chỉ có tác dụng khi thực hiện đối với các thao tác chưa xác nhận hoặc thanh toán.
-- Tín năng hoàn tác sẽ không được làm thay đổi dữ liệu của các đơn hàng đã được xác nhận hoặc thanh toán thành công.
 - Trạng thái sau khi hoàn tác phải đúng chính xác với trạng thái ngay trước thao tác được hoàn tác.
 
 ---
