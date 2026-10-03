@@ -1,6 +1,9 @@
 #include "TicketService.h"
 #include <functional>
 #include <cctype>
+#include <iostream>
+#include <fstream>
+#include <sstream>
  
 using namespace std;
  
@@ -203,4 +206,79 @@ CheckInResult TicketService::checkTicket(const string& bookingId, const string& 
     // 5. Hợp lệ
     return CheckInResult::VALID;
 }
- 
+
+void TicketService::run(){
+    string filename;
+
+    cout << "\n===== TICKET CHECK-IN =====\n";
+    cout << "Nhap ten file: ";
+    cin >> filename;
+    cin.ignore();
+
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "Khong the mo file.\n";
+        return;
+    }
+
+    int n; 
+    file >> n;
+    file.ignore();
+
+    for (int i = 0; i < n; i++){
+        string line;
+        getline(file, line);
+
+        stringstream ss(line);
+
+        Ticket ticket;
+
+        getline(ss, ticket.bookingId, '|');
+        getline(ss, ticket.customerName, '|');
+        getline(ss, ticket.movieName, '|');
+        getline(ss, ticket.showtime, '|');
+        getline(ss, ticket.cinemaRoom, '|');
+        getline(ss, ticket.seats, '|');
+        getline(ss, ticket.ticketStatus, '|');
+        getline(ss, ticket.cinemaAddress, '|');
+
+        addTicket(ticket);
+    }
+    file.close();
+
+    cout << "Da nap " << n << " ticket.\n";
+
+    string choice;
+    do {
+        cout << "\n----- TICKET MENU -----\n";
+        cout << "1. Check-in\n";
+        cout << "0. Thoat\n";
+        cout << "Chon: ";
+        getline(cin >> ws, choice);
+
+        if (choice == "1") {
+            string bookingId, currentTime;
+
+            cout << "Nhap Booking ID: ";
+            getline(cin >> ws, bookingId);
+
+            cout << "Nhap thoi gian hien tai (YYYY-MM-DD HH:MM): ";
+            getline(cin >> ws, currentTime);
+
+            CheckInResult result = checkTicket(bookingId, currentTime);
+
+            cout << "\n===== KET QUA =====\n";
+            switch (result) {
+                case CheckInResult::INVALID_FORMAT: cout << "INVALID_FORMAT\n"; break;
+                case CheckInResult::NOT_FOUND:      cout << "NOT_FOUND\n";      break;
+                case CheckInResult::EXPIRED:        cout << "EXPIRED\n";        break;
+                case CheckInResult::USED:           cout << "USED\n";           break;
+                case CheckInResult::VALID:          cout << "VALID\n";          break;
+            }
+        } else if (choice == "0") {
+            cout << "Thoat Ticket Service.\n";
+        } else {
+            cout << "Lua chon khong hop le.\n";
+        }
+    } while (choice != "2");
+}
