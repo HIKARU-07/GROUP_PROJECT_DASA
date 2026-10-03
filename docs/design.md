@@ -90,13 +90,14 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 **Vấn đề cần giải quyết:** Khách hàng muốn xem phim trong khoảng thời gian [T1, T2], và hệ thống cần trả về danh sách suất chiếu đã được sắp xếp theo thời gian bắt đầu (StartTime).
 
 **Phân tích:**
-- Thao tác chính là tìm kiếm theo khoảng thời gian và cần sắp xếp kết quả.
-- Dữ liệu suất chiếu ít có sự thay đổi.
-- Cần duyệt và tìm kiếm theo thứ tự trong khoảng thời gian.
+- Truy vấn gồm hai bước: tra nhóm suất chiếu theo (MovieID, Date), sau đó lọc theo khoảng StartTime trong nhóm.
+- Bước tra nhóm là tìm theo khóa chính xác, không cần thứ tự.
+- Bước lọc cần dữ liệu đã sắp xếp để tìm nhanh điểm bắt đầu và dừng khi vượt quá T2.
+- Dữ liệu ít thay đổi, đọc nhiều, nên chỉ sắp xếp khi có thay đổi.
   
-**Lựa chọn:** `HashTable` 
+**Lựa chọn:** `HashTable` kết hợp mảng động xử lý colision bằng separate chaining
 
-**Đánh đổi:**
+**Đánh đổi:**  `HashTable` cho phép tra cứu phim trong O(1) và lọc theo thời gian với tốc độ O(logk + m) nhưng không có thứ tự nên phải kèm mảng sắp xếp, và mỗi lần thêm suất mới thì nhóm phải sắp xếp lại với O(klogk) ở lần tìm kế tiếp.
 
 ---
 
