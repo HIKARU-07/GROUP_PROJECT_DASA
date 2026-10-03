@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include<string>
+#include<sstream>
 #include <fstream>
 using namespace std;
 
@@ -146,65 +148,63 @@ bool ShowtimeService::add(const string& movieId, const string& date,
     return true;
 }
 
-//Đọc một dòng dạng MovieID|Date|ShowtimeID|Cinema|Room|Start|End
-bool ShowtimeService::addFromLine(const string& rawLine) {
-    std::string line = rawLine;
-    stripCR(line);
 
-    vector<string> f = split(line, '|');
-    if (f.size() != 7) return false;
-    return add(f[0], f[1], f[2], f[3], f[4], f[5], f[6]);
-}
 
-//Đọc tối đa n dòng từ một luồng và trả về số dòng thêm thành công
-long long ShowtimeService::loadFromStream(istream& in, long long n) {
-    long long added = 0;
-    string line;
-    for (long long i = 0; i < n && getline(in, line); i++) {
-        if (addFromLine(line)) added++;
-    }
-    return added;
-}
-
-//Đọc dữ liệu từ file
+//Đọc file suất chiếu, trả về số suất thêm thành công (-1 nếu không mở được file)
 long long ShowtimeService::loadFromFile(const string& path) {
-    ifstream in(path);
-    if (!in) return -1;
-
+    ifstream file(path);
+    if (!file.is_open()) return -1;
+ 
     long long added = 0;
     bool first = true;
     string line;
-    while (getline(in, line)) {
-        stripCR(line);
+    while (getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();  // file kiểu Windows
         if (line.empty()) continue;
+ 
+        // Dòng đầu là N (chỉ gồm chữ số) thì bỏ qua
         if (first) {
             first = false;
-            if (isNumber(line)) continue;  // dòng đầu là N, bỏ qua
+            if (line.find_first_not_of("0123456789") == string::npos) continue;
         }
-        if (addFromLine(line)) added++;
+ 
+        stringstream ss(line);
+        string movieId, date, showtimeId, cinemaName, room, startTime, endTime;
+        getline(ss, movieId, '|');
+        getline(ss, date, '|');
+        getline(ss, showtimeId, '|');
+        getline(ss, cinemaName, '|');
+        getline(ss, room, '|');
+        getline(ss, startTime, '|');
+        getline(ss, endTime, '|');
+ 
+        if (add(movieId, date, showtimeId, cinemaName, room, startTime, endTime))
+            added++;
     }
     return added;
 }
+
+
 
 //Tìm các suất chiếu của một phim trong một ngày, có giờ bắt đầu nằm trong khoảng [t1, t2]
 vector<Showtime> ShowtimeService::search(const string& movieId, const string& date,
                                               const string& t1, const string& t2) const {
     vector<Showtime> result;
-
+ 
     if (!validMovieId(movieId) || !validDate(date)) return result;
     int lo = parseTime(t1);
     int hi = parseTime(t2);
     if (lo < 0 || hi < 0 || lo > hi) return result;
-
+ 
     const int* found = index_.find(makeKey(movieId, date));
     if (found == nullptr) return result;  // movie không tồn tại hoặc ngày đó không có lịch chiếu
-
+ 
     vector<Showtime>& group = groups_[*found];
     if (!sorted_[*found]) {
         sort(group.begin(), group.end(), byStartIdRoom);
         sorted_[*found] = 1;
     }
-
+ 
     // Tìm suất đầu tiên có StartTime >= T1, rồi lấy đến khi StartTime > T2
     auto it = lower_bound(group.begin(), group.end(), lo,
                                [](const Showtime& s, int value) { return s.startMin < value; });
@@ -212,14 +212,4 @@ vector<Showtime> ShowtimeService::search(const string& movieId, const string& da
         result.push_back(*it);
     }
     return result;
-}
-
-//Đọc một dòng truy vấn dạng MovieID|Date|T1|T2
-vector<Showtime> ShowtimeService::searchFromLine(const string& rawLine) const {
-    string line = rawLine;
-    stripCR(line);
-
-    vector<string> f = split(line, '|');
-    if (f.size() != 4) return vector<Showtime>();
-    return search(f[0], f[1], f[2], f[3]);
 }

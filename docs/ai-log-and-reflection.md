@@ -22,6 +22,8 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 | 6 | 27/09 | Minh | UndoService | Tìm hướng giải quyết | Với định dạng YYYY-MM-DD HH:MM thì hướng nào để xử lí chuỗi và so sánh với chuỗi khác | Đưa ra thư viện để xử lí chuỗi sau đó so sánh với nhau để lấy được khoảng cách thời gian |
 | 7 | 30/09 | Hoàng | DoubleLinkedList | Debug | Hiện tại đoạn mã nguồn của tôi như sau: .... tại sao khi chạy test nó lại báo lỗi ... | Đã giải quyết được vấn đề, kết quả nhận được khá là mới mẻ trong việc dùng operator== |
 | 8 | 30/09 | Hiếu | test_mc1 | Sinh bộ testcase kiểm thử | Hãy giúp tôi sinh các testcase cho đầy đủ các trường hợp TicketService | Sinh ra danh sách testcase đầy đủ cho các trường hợp hợp lệ, hết hạn, đã dùng, không tìm thấy và sai định dạng |
+| 9 | 02/10 | Nhật | HashTable | Debug | Hãy kiểm tra giúp tôi HashTable vì sao vẫn còn xung đột với DoublyLinkedList | Cần phải thêm operator cho giống của DoubleLinkedList (DLL) để cho HashTable hiểu được cùng kiểu dữ liệu với DLL |
+| 10 | 02/10 | Nhật | test_showtime | Tìm hướng giải quyết | Dựa trên 6 tiêu chí để tìm kiếm một suất phù hợp, hãy giúp tôi viết code đúng yêu cầu, nếu sai thì nhảy ra ngay | Đúng như yêu cầu, kiểm tra lần lượt từng tiêu chí, nếu sai có thể fix nhanh chóng |
 
 ## III. Phản tư & Đánh giá (Reflection)
 
@@ -47,7 +49,13 @@ Trong quá trình thực hiện đồ án, nhóm đã sử dụng AI như một 
 ![Minh chứng 4](Image/minhchung4.png)
 - Minh chứng 5:
 ![Minh chứng 5](Image/minhchung5.png)
+- Minh chứng 6:
+![Minh chứng 6](Image/minhchung6.png)
 - Minh chứng 7:
 ![Minh chứng 7](Image/minhchung7.png)
 - Minh chứng 8:
 ![Minh chứng 8](Image/minhchung8.png)
+- Minh chứng 9:
+![Minh chứng 9](Image/minhchung9.png)
+- Minh chứng 10:
+![Minh chứng 10](Image/minhchung10.png)

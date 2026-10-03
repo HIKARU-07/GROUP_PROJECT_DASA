@@ -27,22 +27,11 @@ public:
              const string& room, const string& startTime,
              const string& endTime);
 
-    // Thêm dòng: MovieID|Date|ShowtimeID|CinemaName|CinemaRoom|StartTime|EndTime
-    bool addFromLine(const string& line);
-
-    // Đọc n dòng suất chiếu từ luồng
-    // Trả về số suất đã thêm
-    long long loadFromStream(istream& in, long long n);
-
-    // Đọc file
-    // Trả về số suất hợp lệ đã thêm
+    //Đọc file suất chiếu
     long long loadFromFile(const string& path);
 
     // Các suất của movieId trong ngày date có t1 <= StartTime <= t2 đã sắp theo StartTime -> ShowtimeID -> CinemaRoom.
     vector<Showtime> search(const string& movieId, const string& date, const string& t1, const string& t2) const;
-
-    // Như search nhưng nhận một dòng: MovieID|Date|T1|T2
-    vector<Showtime> searchFromLine(const string& line) const;
 
     // Tổng số suất chiếu hợp lệ đang lưu
     long long size() const { return total_; }
