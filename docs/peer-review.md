@@ -29,10 +29,11 @@
 - **Kết luận:** 
 
 ### 2. Review của Lê Bùi Minh Hiếu cho phần code của Trương Hoàng Minh Nhật
-- **Thành phần review:** 
-- **Nhận xét:**
- 
-- **Kết luận:** 
+**Thành phần review:** Showtime.h - ShowtimeService.h - ShowtimeService.cpp - HashTable.h
+
+**Nhận xét:** Thành viên triển khai khá tốt chức năng **Showtime Search**, sử dụng `HashTable` tự cài đặt để gom các suất chiếu theo khóa `MovieID|Date`, nên tra cứu nhóm suất chiếu trong O(1). `HashTable` tự động `resize()` khi hệ số tải vượt 0.75 nên chuỗi luôn ngắn. Các suất trong mỗi nhóm được sắp xếp theo `StartTime`, rồi `ShowtimeID`, rồi `CinemaRoom`, và dùng `lower_bound` để tìm suất đầu tiên từ T1, nên việc lọc theo khung giờ nhanh và cho kết quả đúng thứ tự. Dữ liệu đầu vào cũng được kiểm tra cẩn thận, dòng sai định dạng bị bỏ qua mà không ảnh hưởng việc nạp file.
+
+**Kết luận:** Nhìn chung, thành viên hoàn thành tốt chức năng đã được giao, hiểu và áp dụng đúng `HashTable` kết hợp `lower_bound` để giải quyết bài toán lọc suất chiếu theo khung giờ.
 
 ### 3. Review của Trương Hoàng Minh Nhật cho phần code của Tào Lê Quốc Anh
 - **Thành phần review:** BookingRequest.h - BookingService.cpp - BookingService.h - PriorityQueue.h
