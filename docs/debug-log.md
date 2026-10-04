@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 # NHẬT KÝ GỠ LỖI (DEBUG LOG)
 
 *Nhóm em đã sử dụng AI để tạo ra form mẫu, sau đó chỉnh sửa lại theo đúng những gì nhóm chúng em thực hiện*

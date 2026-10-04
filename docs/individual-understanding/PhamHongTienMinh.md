@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 ## Nhận định cá nhân về đề tài - D1
 ## Phạm Hồng Tiến Minh - 25110271
 

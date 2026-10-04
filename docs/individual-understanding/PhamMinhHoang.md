@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 # BÀI ĐỌC-HIỂU ĐỀ BÀI CÁ NHÂN – D1
 # Phạm Minh Hoàng – 25110205
 
@@ -26,3 +30,6 @@ Hoàn tác: Tần suất sử dụng không cao, thực hiện từng lần mộ
 Phim vừa xem: Thông tin sẽ được cập nhật mỗi khi xem phim mới. Danh sách sắp xếp theo thứ tự thời gian, từ phim gần đây nhất.
 
 Lọc suất chiếu dựa trên khoảng thời gian: Tần suất trung bình đến cao, chủ yếu liên quan đến việc đọc dữ liệu. Cần sắp xếp kết quả theo thứ tự tăng dần từ giờ bắt đầu.
+
+## 5. Kết luận
+Theo em, đề tài này đủ rộng để nhóm em phải dùng nhiều kiến thức khác nhau, không chỉ một cấu trúc dữ liệu. Đề tài cũng gần với mấy hệ thống check-in vé ngoài đời nên dễ hình dung yêu cầu và tự nghĩ ra được mấy trường hợp cần xử lý.

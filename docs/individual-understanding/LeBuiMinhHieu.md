@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 # D1 — BÀI ĐỌC-HIỂU ĐỀ BÀI CÁ NHÂN
 
 **Họ tên:** Lê Bùi Minh Hiếu | **MSSV:** 25110197 | **Nhóm:** DASA_605 | **Lớp HP:** 261DASA230179_06

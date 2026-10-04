@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 # D1 – BÀI ĐỌC-HIỂU ĐỀ BÀI CÁ NHÂN
 
 **Lĩnh vực:** Hệ thống đặt vé sự kiện / Rạp chiếu phim

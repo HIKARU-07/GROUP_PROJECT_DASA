@@ -1,3 +1,7 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 # Bài Đọc hiểu tài tài cá nhân - D1
 # Trương Hoàng Minh Nhật - 25110282
 

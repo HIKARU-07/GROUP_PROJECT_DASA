@@ -1,5 +1,9 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
 ### NHẬT KÝ SỬ DỤNG AI & PHẢN TƯ (AI LOG & REFLECTION)
-> **Ngày cập nhập:** 22/09/2026
+> **Ngày cập nhập:** 01/10/2026
 > **Nhóm thực hiện:** DASA_605
 ---
 *Nhóm em đã sử dụng AI để tạo ra form mẫu, sau đó chỉnh sửa lại theo đúng những gì nhóm chúng em thực hiện*
