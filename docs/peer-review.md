@@ -35,10 +35,10 @@
 - **Kết luận:** 
 
 ### 3. Review của Trương Hoàng Minh Nhật cho phần code của Tào Lê Quốc Anh
-- **Thành phần review:** 
-- **Nhận xét:**
+- **Thành phần review:** BookingRequest.h - BookingService.cpp - BookingService.h - PriorityQueue.h
+- **Nhận xét:** Thành viên triển khai khá tốt chức năng **BookingRequest** và **BookingService**, sử dụng `PriorityQueue` để thực hiện thứ tự xử lí công việc. Hàng đợi ưu tiên cài bằng heap hoạt động đúng, với `push()` và `pop()` có độ phức tạp O(log n) khá nhanh. Yêu cầu có thời gian sớm hơn được xử lý trước, và khi bằng nhau thì so theo requestID, nên thứ tự xử lý công bằng và luôn xác định. Việc lưu khóa chọn ghế trong `unordered_set` giúp kiểm tra ghế đã bị giữ trong O(1), ngăn đặt trùng ghế trong cùng một suất chiếu mà vẫn phân biệt được các suất khác nhau.
 
-- **Kết luận:** 
+- **Kết luận:** Nhìn chung, thành viên hoàn thành tốt chức năng đã được giao, hiểu và áp dụng nhiều cấu trúc mới như `PriorityQueue` để giải quyết thứ tự công việc cần xử lý.
 
 ### 4. Review của Tào Lê Quốc Anh cho phần code của Phạm Hồng Tiến Minh
 - **Thành phần review:** 
