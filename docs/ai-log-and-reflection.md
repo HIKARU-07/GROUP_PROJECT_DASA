@@ -46,6 +46,14 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 - Xử lí lỗi và khả năng mở rộng của code còn hạn chế, UndoService phụ thuộc nhiều vào cout và các operation đang được xử lý cố định bằng if
 
 ### 3. Trương Hoàng Minh Nhật
+Điểm tốt:
+- Code chạy ổn định, đúng như cách mô tả, các hàm đều được định nghĩa để có thể dễ hiểu, tên hàm và biến đều được đặt để dễ mừng tượng.
+
+Điểm chưa tốt:
+- Khi viết code còn phải fix rất nhiều mới được bản hoàn chỉnh.
+- Sử dụng thư viện khá nhiều, cần cải thiện thêm.
+- Code còn bừa bộn chưa gọn gàng.
+- Khả năng hiểu biết còn kém và nhờ AI hỗ trợ phần này khá nhiều.
 
 ### 4. Lê Bùi Minh Hiếu
 Điểm tốt:
