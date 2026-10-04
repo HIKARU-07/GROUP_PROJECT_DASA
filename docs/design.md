@@ -20,7 +20,7 @@ Tầng này đóng vai trò như trái tim của hệ thống, với hai phần 
 - services/: áp dụng các cấu trúc dữ liệu từ phần trên để xử lý các yêu cầu từ MC1, MC2 cũng như các nhu cầu khác mà chúng em tự phát hiện.
 
 **3. Persistence**
-Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn bản ngay khi hệ thống bắt đầu khởi động. Sử dụng các công cụ như ifstream và stringstream, dữ liệu được phân tích từ từng dòng và chuyển thành các đối tượng được xác định trước trong thư mục models/, sau đó mỗi đối tượng được nạp vào các cấu trúc dữ liệu thích hợp. Do đặc thù về quy mô nhỏ của dự án, những chức năng đọc file, ví dụ như `loadFromFile`, được đặt trực tiếp trong *từng dịch vụ tương ứng* để tối ưu hóa quy trình, thay vì tách riêng thành một module độc lập. Tầng này chỉ tập trung vào việc đọc dữ liệu và không sử dụng các câu lệnh SQL hay các phương thức sắp xếp như ORDER BY để thực hiện truy vấn.
+Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn bản ngay khi hệ thống bắt đầu khởi động. Sử dụng các công cụ như ifstream và stringstream, dữ liệu được phân tích từ từng dòng và chuyển thành các đối tượng được xác định trước trong thư mục models/, sau đó mỗi đối tượng được nạp vào các cấu trúc dữ liệu thích hợp. Do đặc thù về quy mô nhỏ của dự án, những chức năng đọc file được đặt trực tiếp trong *từng dịch vụ tương ứng* để tối ưu hóa quy trình, thay vì tách riêng thành một module độc lập. Tầng này chỉ tập trung vào việc đọc dữ liệu và không sử dụng các câu lệnh SQL hay các phương thức sắp xếp như ORDER BY để thực hiện truy vấn.
 
 ---
 
@@ -35,9 +35,13 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 - Có tần suất đọc cao, còn ghi thấp.
 - Mục tiêu hiệu suất: trung bình O(1).
 
-**Lựa chọn:** Sử dụng `HashTable.h` + `DoubleLinkedList` tự cài đặt để đạt được mục tiêu.
+**Lựa chọn:** Sử dụng Một bảng băm cài đặt ngay trong `TicketService: std::vector<DoubleLinkedList<Ticket>> buckets`, trong đó mỗi bucket là một `DoubleLinkedList` (xử lý va chạm bằng separate chaining).
 
-**Đánh đổi:** Có khả năng va chạm dẫn đến trường hợp xấu nhất là O(n). Nếu sau này có nhu cầu liệt kê vé theo thứ tự thời gian thì Hash Table không đáp ứng được và cần thêm cấu trúc khác.
+
+**Đánh đổi:** 
+- Va chạm có thể dẫn đến trường hợp xấu nhất là O(n).
+- Số bucket cố định nên nếu số vé vượt xa N dự kiến, chuỗi trong bucket sẽ dài ra và hiệu suất giảm. Ngược lại, cấp sẵn nhiều bucket tốn bộ nhớ ngay cả khi ít vé.
+- Nếu sau này cần liệt kê vé theo thứ tự thời gian thì bảng băm không đáp ứng được, cần thêm cấu trúc khác.
 
 ---
 
@@ -50,14 +54,14 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 - Dữ liệu đầu vào không được sắp xếp.
 - Mục tiêu hiệu suất: O(log n) cho các thao tác thêm và lấy ra.
 
-**Lựa chọn:** Áp dụng `PriorityQueue.h` (Min-Heap) tự cài đặt.
+**Lựa chọn:** Áp dụng `PriorityQueue.h` (Min-Heap cài đặt trên mảng động)
 
 **Đánh đổi:** Sử dụng Heap cho phép lấy phần tử nhỏ nhất trong thời gian O(log n). Nhược điểm là muốn duyệt toàn bộ hàng đợi theo thứ tự phải lần lượt pop rồi push lại, điều này chấp nhận được vì chỉ cần lấy ra và xử lý tuần tự từng yêu cầu.
 
 ---
 
 ### 3. Yêu cầu tự phát hiện 1 — Hoàn tác thao tác (Undo)
-**Vấn đề cần giải quyết:** Cần cho phép khách hàng hoàn tác khi chọn nhầm ghế hoặc combo, với giới hạn tối đa là 10 bước và thời gian hết hạn là 15 phút.
+**Vấn đề cần giải quyết:** Cần cho phép khách hàng hoàn tác khi chọn nhầm ghế hoặc combo, với giới hạn tối đa là 10 thao tác và thời gian hết hạn là 15 phút.
 
 **Phân tích:**
 - Thao tác mới nhất được hoàn tác trước (LIFO).
@@ -66,7 +70,7 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 
 **Lựa chọn:** Sử dụng `Stack.h` (SingleLinkedList) đóng vai trò như một Stack, thực hiện thêm vào đầu và lấy ra từ đầu.
 
-**Đánh đổi:** `Stack` cho phép thêm vào và xóa khỏi nhanh chóng ở đầu danh sách trong O(1). Để giới hạn 10 phần tử, chỉ cần kiểm tra kích thước trước khi thêm. Khi cần kiểm tra thời gian hết hạn, so sánh dấu thời gian khi xóa.
+**Đánh đổi:** Thêm, xóa và xem đỉnh đều O(1). Việc duyệt để in stack phải đi từ đỉnh xuống nên tốn O(n²) với get(i), nhưng n ≤ 10 nên chi phí không đáng kể.
 
 ---
 
@@ -80,7 +84,9 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 
 **Lựa chọn:** Sử dụng `DoubleLinkedList.h`.
 
-**Đánh đổi:** DoubleLinkedList cho phép thêm, xóa và di chuyển phần tử trong O(1), nhưng cần sử dụng thêm bộ nhớ phụ trợ O(n).
+**Cách hoạt động:** view(movie) gọi Search để kiểm tra phim có trong danh sách chưa. Nếu có thì Delete nút cũ; nếu chưa có và danh sách đã đủ MAX = 5 thì popBack. Cuối cùng pushFront phim vừa xem.
+
+**Đánh đổi:** DoubleLinkedList cho phép thêm, xóa và di chuyển phần tử trong O(1), nhưng cần sử dụng thêm bộ nhớ phụ trợ O(n), mỗi nút tốn thêm hai con trỏ prev và next..
 
 ---
 
@@ -91,37 +97,40 @@ Tầng Persistence đảm nhiệm việc đọc dữ liệu từ các tệp văn
 - Truy vấn gồm hai bước: tra nhóm suất chiếu theo (MovieID, Date), sau đó lọc theo khoảng StartTime trong nhóm.
 - Bước tra nhóm là tìm theo khóa chính xác, không cần thứ tự.
 - Bước lọc cần dữ liệu đã sắp xếp để tìm nhanh điểm bắt đầu và dừng khi vượt quá T2.
-- Dữ liệu ít thay đổi, đọc nhiều, nên chỉ sắp xếp khi có thay đổi.
+- Dữ liệu được nạp một lần rồi đọc nhiều lần, nên chỉ sắp xếp khi cần.
   
 **Lựa chọn:** `HashTable` kết hợp mảng động xử lý colision bằng separate chaining
 
-**Đánh đổi:**  `HashTable` cho phép tra cứu phim trong O(1) và lọc theo thời gian với tốc độ O(logk + m) nhưng không có thứ tự nên phải kèm mảng sắp xếp, và mỗi lần thêm suất mới thì nhóm phải sắp xếp lại với O(klogk) ở lần tìm kế tiếp.
+**Đánh đổi:**  `HashTable` cho phép tra cứu phim trong O(1) và lọc theo thời gian với tốc độ O(logk + m) nhưng không có thứ tự nên phải kèm mảng sắp xếp, và mỗi lần thêm suất mới thì nhóm phải sắp xếp lại với O(klogk) ở lần tìm kế tiếp. Giới hạn khoảng giờ không được qua nửa đêm (T1 phải nhỏ hơn hoặc bằng T2), và suất chiếu qua đêm chỉ xuất hiện ở ngày bắt đầu.
 
 ---
 
 ## III. YÊU CẦU XUNG ĐỘT
 
-**Xung đột:** MC1 cần tra cứu nhanh theo ID (Hash Table + DoubleLinkedList), MC2 và yêu cầu lọc suất chiếu cần duyệt theo thứ tự (Priority Queue). Không có cấu trúc nào làm tốt cả hai.
+**Xung đột:** Ba chức năng cần ba cách lấy dữ liệu khác nhau. Tra vé chỉ cần tìm đúng một vé theo mã. Đặt ghế cần lấy ra yêu cầu đến sớm nhất. Lọc suất chiếu thì phải tìm đúng nhóm (phim, ngày) rồi liệt kê các suất theo giờ. Bảng băm tìm theo mã rất nhanh nhưng không có thứ tự. Heap hay mảng đã sắp xếp thì có thứ tự nhưng tìm theo mã lại chậm. Không cấu trúc nào làm tốt cả hai việc.
 
-**Giải pháp:** Kết hợp các cấu trúc dữ liệu:
+**Giải pháp:** Chúng em cho mỗi chức năng dùng một cấu trúc riêng:
 
-- `HashTable` đảm nhận vai trò chỉ mục chính để tra cứu vé theo `booking_id`.
-- `PriorityQueue` giữ vai trò xử lý hàng đợi đặt ghế.
-- `DoubleLinkedList` 
-- `Stack` (SingleLinkedList) giữ vai trò quản lý lịch sử thao tác (Undo) và danh sách phim gần đây. Khi thêm hoặc xóa dữ liệu, cập nhật đồng bộ các cấu trúc liên quan.
+- Tra vé: bảng băm, mỗi ô là một danh sách liên kết đôi. Tìm vé trung bình O(1).
+- Đặt ghế: Min-Heap để lấy yêu cầu sớm nhất, kèm một unordered_set ghi các ghế đã khóa.
+- Undo: Stack, vì thao tác làm sau thì hoàn tác trước.
+- Phim xem gần đây: danh sách liên kết đôi, thêm ở đầu và bỏ ở cuối.
+- Lọc suất chiếu: bảng băm để tìm nhóm (phim, ngày), rồi mảng sắp theo giờ trong nhóm đó.
 
-**Chấp nhận:** Tăng cường sử dụng bộ nhớ và thời gian ghi dữ liệu. Bù lại, thao tác đọc sẽ nhanh hơn.
+Các chức năng không dùng chung dữ liệu nên không cần đồng bộ giữa các cấu trúc. Chỉ Showtime dùng hai cấu trúc cùng lúc: khi thêm suất mới, nhóm được đánh dấu cần sắp xếp lại, và lần tìm kế tiếp sẽ sắp xếp.
 
+**Chấp nhận:** Tốn thêm bộ nhớ (bảng băm cấp sẵn nhiều ô, mỗi nút có thêm con trỏ, thêm danh sách ghế đã khóa). Thêm suất chiếu mới thì lần tìm sau chậm hơn một chút vì phải sắp xếp lại. Bù lại, tra vé, đặt ghế và tìm suất chiếu đều nhanh.
 ---
 
 ## IV. PHƯƠNG ÁN BỊ LOẠI
 
 | Phương án | Lý do loại |
 |:---|:---|
-| Mảng động cho MC1 | Tìm kiếm tuyến tính O(n), không hiệu quả với hàng triệu vé. |
-| Hash Table cho MC2 | Không thể lấy được phần tử nhỏ nhất một cách hiệu quả. |
-| SQLite xử lý truy vấn | Vi phạm yêu cầu kiến trúc, tầng Persistence chỉ được load/save. |
-| Mảng cho Recently Viewed | Chèn/xóa/di chuyển tốn O(n), không đáp ứng yêu cầu nhanh. |
+| Mảng động cho MC1 | Tìm vé theo booking_id phải duyệt tuyến tính O(n), không đáp ứng với hàng triệu vé. Bảng băm cho trung bình O(1). |
+| Hash Table cho MC2 | Bảng băm không có thứ tự nên không lấy được yêu cầu timestamp nhỏ nhất một cách hiệu quả. Min-Heap lấy được trong O(log n). |
+| Mảng cho Undo | Mảng cũng đạt O(1) cho push/pop, nhưng Undo chỉ thao tác ở một đầu nên không cần truy cập ngẫu nhiên. Danh sách liên kết đơn cấp phát theo số thao tác thực tế và không phải cấp lại bộ nhớ nếu bỏ giới hạn 10. |
+| Mảng cho Recently Viewed | Thêm ở đầu và đưa lên đầu tốn O(k) dịch chuyển phần tử; với MAX = 5 chênh lệch nhỏ nhưng không thể hiện được thao tác đầu/cuối O(1) |
+| Duyệt tuyến tính toàn bộ suất chiếu cho Showtime | Mỗi truy vấn phải duyệt O(N) suất chiếu của toàn hệ thống. Bảng băm chỉ cần xét nhóm (MovieID, Date): tra nhóm O(1), lọc O(log k + m). |
 
 ---
 
