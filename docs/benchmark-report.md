@@ -1,415 +1,234 @@
-<style>
-  body { font-family: "Times New Roman", Times, serif; }
-</style>
+# Benchmark Report – Group Project DASA
 
-# Benchmark Report
+## 1. Mục tiêu
 
-## 1. Tổng quan
+Benchmark được thực hiện để kiểm chứng bằng thực nghiệm rằng các cấu trúc dữ liệu được chọn cho hai yêu cầu chính của hệ thống có hành vi phù hợp với phân tích độ phức tạp:
 
-Benchmark được xây dựng để đánh giá hiệu năng của các cấu trúc dữ liệu
-được sử dụng trong project.
+- **MC1 – Exact lookup:** tìm vé theo `bookingId` ở quy mô dữ liệu lớn.
+- **MC2 – Priority retrieval/processing:** xử lý các yêu cầu đặt ghế theo thứ tự ưu tiên dựa trên `timestamp`, sau đó `requestId`.
 
-Hai thành phần chính được kiểm thử:
+Ngoài việc đo cấu trúc dữ liệu tự cài đặt, benchmark có thêm baseline đơn giản để làm đối chứng:
 
--   **MC1 -- HashTable:** HashTable tự cài đặt.
--   **MC2 -- PriorityQueue:** PriorityQueue tự cài đặt bằng Min-Heap.
+- MC1: **linear scan** và `std::unordered_map`.
+- MC2: `std::priority_queue` và phương án **sort + sequential scan**.
 
-Các cấu trúc tự cài đặt được so sánh với các cấu trúc tương ứng của STL
-nhằm tạo một baseline để đánh giá hiệu năng.
+Mục tiêu của benchmark không phải chứng minh implementation tự cài đặt nhanh hơn thư viện STL, mà là chứng minh lựa chọn cấu trúc dữ liệu phù hợp với workload và quy mô dữ liệu của bài toán.
 
-------------------------------------------------------------------------
+## 2. Cấu trúc dữ liệu được đánh giá
 
-## 2. Mục tiêu
+### 2.1 MC1 – HashTable
 
-Benchmark có các mục tiêu chính:
+Project sử dụng `HashTable<V>` với:
 
-1.  Đo thời gian thực thi của các thao tác quan trọng.
-2.  So sánh implementation tự cài đặt với STL.
-3.  Kiểm tra sự phù hợp giữa hiệu năng thực tế và độ phức tạp lý thuyết.
-4.  Kiểm tra tính đúng của kết quả thông qua checksum.
-5.  Đánh giá khả năng mở rộng khi số lượng dữ liệu tăng.
+- `std::hash<string>` để ánh xạ khóa vào bucket.
+- Mỗi bucket dùng `DoubleLinkedList<Entry<V>>` để xử lý collision.
+- Khi load factor vượt `0.75`, bảng được resize lên gấp đôi và rehash các phần tử.
+- Thao tác tra cứu đi vào đúng bucket rồi tìm khóa trong bucket.
 
-------------------------------------------------------------------------
+Độ phức tạp kỳ vọng:
 
-## 3. Môi trường thử nghiệm
+| Thao tác | Trung bình | Trường hợp xấu |
+|---|---:|---:|
+| `put` | O(1) amortized | O(n) khi resize/collision xấu |
+| `get` / `find` | O(1) | O(n) |
 
-Benchmark được viết bằng **C++17** và sử dụng
-`std::chrono::steady_clock` để đo thời gian.
+Đối chứng **linear scan** có độ phức tạp O(n) cho mỗi lần tìm kiếm.
 
-Khuyến nghị biên dịch ở chế độ tối ưu hóa:
+### 2.2 MC2 – PriorityQueue
 
-``` bash
-g++ -std=c++17 -O2
-```
+Project sử dụng `PriorityQueue` tự cài đặt bằng **binary min-heap** trên mảng động. Ưu tiên được xác định theo:
 
-Các yếu tố như CPU, RAM, compiler, hệ điều hành và chương trình chạy nền
-có thể ảnh hưởng đến thời gian benchmark.
+1. `timestamp` nhỏ hơn → ưu tiên cao hơn.
+2. Nếu cùng timestamp, `requestId` nhỏ hơn → ưu tiên cao hơn.
 
-Vì vậy, các phương án phải được chạy trong cùng một môi trường để kết
-quả có tính so sánh.
+Độ phức tạp kỳ vọng:
 
-------------------------------------------------------------------------
+| Thao tác | Độ phức tạp |
+|---|---:|
+| `top` | O(1) |
+| `push` | O(log n) |
+| `pop` | O(log n) |
+| Xử lý n phần tử bằng push + pop | O(n log n) |
 
-## 4. Dữ liệu kiểm thử
+Phương án đối chứng `sort + sequential scan` cũng có tổng chi phí O(n log n), nhưng phù hợp hơn với trường hợp cần sắp xếp toàn bộ dữ liệu một lần thay vì liên tục thêm/xóa phần tử ưu tiên.
 
-Benchmark hỗ trợ nhiều kích thước dữ liệu để quan sát xu hướng khi quy
-mô input tăng.
+## 3. Phương pháp thực nghiệm
 
-Các kích thước mặc định:
+### 3.1 Dữ liệu
 
-``` text
-N = 10,000
-N = 50,000
-N = 100,000
-N = 250,000
-```
+Benchmark tạo dữ liệu **deterministic** bằng các hàm sinh dữ liệu cố định, vì vậy các lần chạy có cùng kích thước sẽ có cùng tập khóa/request về mặt logic.
 
-Có thể truyền kích thước khác khi chạy:
+Các kích thước được dùng trong lần chạy báo cáo:
 
-``` bash
-benchmark.exe 10000 50000 100000
-```
+- **N = 10,000**
+- **N = 100,000**
 
-Dữ liệu được sinh tự động để đảm bảo các phương án nhận cùng một
-workload.
+Hai mức này chênh nhau một bậc độ lớn, đáp ứng yêu cầu đánh giá ở quy mô đủ lớn để quan sát sự khác biệt giữa tuyến tính và cấu trúc dữ liệu phù hợp.
 
-------------------------------------------------------------------------
+Với MC1, số truy vấn `Q = N`. Trong mỗi tập truy vấn:
 
-# 5. MC1 -- HashTable Benchmark
+- 4/5 truy vấn là tìm thấy khóa.
+- 1/5 truy vấn là khóa không tồn tại.
 
-## 5.1. Các phương án
+Thời gian được đo bằng `std::chrono::steady_clock` và đơn vị là milliseconds. Kết quả tìm kiếm được cộng vào checksum để tránh việc phần công việc đo được bị tối ưu hóa bỏ đi.
 
-MC1 so sánh:
+### 3.2 Môi trường chạy benchmark
 
-### Custom HashTable
+Lần chạy được thực hiện bằng:
 
-HashTable do nhóm tự cài đặt.
+- Compiler: **g++ 14.2.0**
+- Standard: **C++17**
+- Optimization: **-O2**
+- OS/kernel: **Linux x86_64**
+- Clock: `std::chrono::steady_clock`
 
-Đặc điểm:
+> **Lưu ý:** số liệu bên dưới là số đo thực tế từ môi trường chạy benchmark này. Khi nộp/defense, nên chạy lại `benchmark.cpp` trên chính máy dùng để trình diễn và cập nhật bảng số liệu nếu thời gian thay đổi theo CPU/OS/compiler.
 
--   Hash function dựa trên `std::hash`.
--   Collision được xử lý bằng bucket.
--   Bucket sử dụng linked list.
--   Resize khi load factor vượt ngưỡng quy định.
+## 4. Kết quả MC1 – Exact Lookup
 
-### STL `std::unordered_map`
+### 4.1 N = 10,000
 
-`std::unordered_map` được sử dụng làm baseline.
+| Implementation | Insert (ms) | Lookup (ms) |
+|---|---:|---:|
+| Custom `HashTable` | 2.304 | **0.204** |
+| Linear scan | – | **136.924** |
+| `std::unordered_map` | 0.786 | 0.257 |
 
-Đây là hash table được cung cấp bởi thư viện chuẩn C++.
+Tại N = 10,000, lookup bằng `HashTable` nhanh hơn linear scan khoảng **671 lần** (`136.924 / 0.204`).
 
-------------------------------------------------------------------------
+### 4.2 N = 100,000
 
-## 5.2. Các thao tác được đo
+| Implementation | Insert (ms) | Lookup (ms) |
+|---|---:|---:|
+| Custom `HashTable` | 41.792 | **7.101** |
+| Linear scan | – | **13,558.826** |
+| `std::unordered_map` | 7.548 | 4.522 |
 
-### Insert
+Tại N = 100,000, lookup bằng `HashTable` nhanh hơn linear scan khoảng **1,909 lần** (`13,558.826 / 7.101`).
 
-Thêm `N` phần tử vào HashTable.
+### 4.3 Nhận xét MC1
 
-``` text
-Insert N elements
-```
+Khi N tăng từ 10,000 lên 100,000:
 
-Mục tiêu là đo chi phí xây dựng bảng khi số lượng phần tử tăng.
+- Linear scan tăng từ **136.924 ms** lên **13,558.826 ms**, tức khoảng **99 lần**.
+- Custom `HashTable` tăng từ **0.204 ms** lên **7.101 ms**, tức khoảng **34.8 lần**.
+- Thời gian thực tế của hash table không tăng tuyến tính theo N trong hai điểm đo này, phù hợp với kỳ vọng lookup trung bình gần O(1), dù benchmark thực tế còn chịu ảnh hưởng của cache, collision, allocation và resize.
 
-### Lookup
+Kết quả quan trọng nhất là khoảng cách giữa hai chiến lược tăng rất mạnh khi quy mô dữ liệu tăng. Điều này cho thấy linear scan không phù hợp cho exact lookup ở quy mô lớn, trong khi hash table giữ được thời gian truy vấn thấp hơn đáng kể.
 
-Thực hiện nhiều truy vấn tìm kiếm trên bảng.
+`std::unordered_map` nhanh hơn custom `HashTable` ở lookup trong lần chạy này. Đây là kết quả có thể kỳ vọng vì STL có implementation đã được tối ưu, nhưng nó không phủ nhận tính đúng đắn của lựa chọn Hash Table về mặt thuật toán.
 
-Workload bao gồm cả:
+## 5. Kết quả MC2 – Priority Processing
 
--   Key tồn tại.
--   Key không tồn tại.
+### 5.1 N = 10,000
 
-Điều này giúp benchmark phản ánh gần hơn trường hợp sử dụng thực tế.
+| Implementation | Push (ms) | Pop (ms) | Total (ms) |
+|---|---:|---:|---:|
+| Custom `PriorityQueue` | 5.629 | 28.330 | **33.959** |
+| `std::priority_queue` | 2.983 | 12.732 | **15.715** |
+| Sort + sequential scan | – | – | **14.152** |
 
-------------------------------------------------------------------------
+### 5.2 N = 100,000
 
-## 5.3. Độ phức tạp lý thuyết
+| Implementation | Push (ms) | Pop (ms) | Total (ms) |
+|---|---:|---:|---:|
+| Custom `PriorityQueue` | 46.609 | 390.077 | **436.686** |
+| `std::priority_queue` | 35.501 | 172.929 | **208.430** |
+| Sort + sequential scan | – | – | **180.656** |
 
-  Operation             Custom HashTable   `std::unordered_map`
-  ------------------- ------------------ ----------------------
-  Insert trung bình                 O(1)                   O(1)
-  Lookup trung bình                 O(1)                   O(1)
-  Worst case                        O(n)                   O(n)
+### 5.3 Nhận xét MC2
 
-Về mặt lý thuyết, hai phương án có cùng độ phức tạp trung bình.
+Khi N tăng từ 10,000 lên 100,000:
 
-Tuy nhiên, thời gian thực tế có thể khác nhau do cách triển khai, cấp
-phát bộ nhớ, collision và cache locality.
+- Custom PriorityQueue tăng từ **33.959 ms** lên **436.686 ms**, khoảng **12.9 lần**.
+- `std::priority_queue` tăng từ **15.715 ms** lên **208.430 ms**, khoảng **13.3 lần**.
+- Sort + sequential scan tăng từ **14.152 ms** lên **180.656 ms**, khoảng **12.8 lần**.
 
-------------------------------------------------------------------------
+Mức tăng khoảng 13 lần khi N tăng 10 lần phù hợp với xu hướng **O(n log n)**: chi phí không tăng đúng 10 lần như thuật toán tuyến tính, nhưng cũng không tăng tới 100 lần như O(n²).
 
-# 6. MC2 -- PriorityQueue Benchmark
+Trong workload benchmark này, sort toàn bộ dữ liệu một lần có thời gian tổng thấp hơn custom heap. Tuy nhiên, đây là hai chiến lược có workload khác nhau:
 
-## 6.1. Các phương án
+- **PriorityQueue:** phù hợp khi request được thêm dần và cần lấy phần tử ưu tiên nhất nhiều lần.
+- **Sort + scan:** phù hợp khi toàn bộ dữ liệu đã có sẵn và chỉ cần sắp xếp một lần rồi duyệt theo thứ tự.
 
-MC2 so sánh ba cách xử lý priority queue:
+Do `BookingService` của project sử dụng `addRequest()` để đưa request vào queue và `process()` lấy lần lượt `top()` rồi `pop()`, PriorityQueue phù hợp trực tiếp với mô hình xử lý của service.
 
-1.  **Custom PriorityQueue**
-    -   Min-Heap tự cài đặt.
-2.  **`std::priority_queue`**
-    -   Priority queue có sẵn trong STL.
-3.  **Sort + Sequential Scan**
-    -   Sắp xếp dữ liệu rồi xử lý tuần tự.
+## 6. Kiểm tra tính đúng của kết quả
 
-------------------------------------------------------------------------
-
-## 6.2. Tiêu chí ưu tiên
-
-Các phương án sử dụng cùng tiêu chí so sánh `BookingRequest`:
-
-1.  Timestamp nhỏ hơn được ưu tiên trước.
-2.  Nếu timestamp bằng nhau, `requestId` nhỏ hơn được ưu tiên trước.
-
-Việc sử dụng cùng comparator đảm bảo các phương án xử lý cùng một thứ tự
-ưu tiên.
-
-------------------------------------------------------------------------
-
-## 6.3. Các thao tác được đo
-
-### Push
-
-Thêm request vào PriorityQueue.
-
-Với Min-Heap:
-
-``` text
-Push = O(log n)
-```
-
-### Pop
-
-Lấy và xóa request có độ ưu tiên cao nhất.
-
-``` text
-Pop = O(log n)
-```
-
-### Top
-
-Truy cập request có độ ưu tiên cao nhất mà không xóa.
-
-``` text
-Top = O(1)
-```
-
-------------------------------------------------------------------------
-
-## 6.4. Độ phức tạp
-
-  Operation     Custom Heap   `std::priority_queue`
-  ----------- ------------- -----------------------
-  Push             O(log n)                O(log n)
-  Top                  O(1)                    O(1)
-  Pop              O(log n)                O(log n)
-  Space                O(n)                    O(n)
-
-Với phương án sort:
-
-``` text
-Sorting = O(n log n)
-```
-
-Do đó sort có thể phù hợp khi cần sắp xếp toàn bộ dữ liệu một lần, nhưng
-không phù hợp bằng Heap nếu workload liên tục có `push` và `pop`.
-
-------------------------------------------------------------------------
-
-# 7. Phương pháp đo
-
-Thời gian được đo bằng:
-
-``` cpp
-std::chrono::steady_clock
-```
-
-Cấu trúc đo:
-
-``` text
-Start timer
-    ↓
-Execute operation
-    ↓
-Stop timer
-    ↓
-Calculate elapsed time
-```
-
-Việc sử dụng `steady_clock` giúp tránh ảnh hưởng của thay đổi system
-clock trong quá trình đo.
-
-Các thao tác chuẩn bị dữ liệu không được tính vào thời gian của thao tác
-đang benchmark khi điều đó có thể làm sai lệch kết quả.
-
-------------------------------------------------------------------------
-
-# 8. Kiểm tra tính đúng
-
-Benchmark không chỉ đo thời gian mà còn kiểm tra kết quả.
-
-## MC1
-
-Kết quả lookup của Custom HashTable được so sánh với:
-
-``` text
-std::unordered_map
-```
-
-## MC2
-
-Kết quả xử lý được so sánh giữa:
-
-``` text
-Custom PriorityQueue
-std::priority_queue
-Sort + Scan
-```
-
-Checksum được sử dụng để phát hiện trường hợp hai implementation có thời
-gian chạy nhưng tạo ra kết quả khác nhau.
-
-Nếu checksum không giống nhau, benchmark sẽ cảnh báo để tránh đưa ra kết
-luận hiệu năng dựa trên kết quả sai.
-
-------------------------------------------------------------------------
-
-# 9. Kết quả benchmark
-
-Kết quả cần được ghi lại theo từng kích thước dữ liệu.
-
-Mẫu bảng cho MC1:
-
-          N   Custom Insert   STL Insert   Custom Lookup   STL Lookup
-  --------- --------------- ------------ --------------- ------------
-     10,000             ...          ...             ...          ...
-     50,000             ...          ...             ...          ...
-    100,000             ...          ...             ...          ...
-    250,000             ...          ...             ...          ...
-
-Mẫu bảng cho MC2:
-
-          N   Custom Push   STL Push   Custom Pop   STL Pop   Sort + Scan
-  --------- ------------- ---------- ------------ --------- -------------
-     10,000           ...        ...          ...       ...           ...
-     50,000           ...        ...          ...       ...           ...
-    100,000           ...        ...          ...       ...           ...
-    250,000           ...        ...          ...       ...           ...
-
-> Các giá trị `...` cần được thay bằng số liệu thực tế thu được khi chạy
-> benchmark trên máy của nhóm.
-
-------------------------------------------------------------------------
-
-# 10. Cách phân tích kết quả
-
-Sau khi chạy benchmark, cần tập trung vào ba vấn đề.
-
-## 10.1. Scaling theo N
-
-So sánh thời gian khi:
-
-``` text
-10,000 → 50,000 → 100,000 → 250,000
-```
-
-Nếu thời gian tăng phù hợp với độ phức tạp lý thuyết thì implementation
-có scaling hợp lý.
-
-------------------------------------------------------------------------
-
-## 10.2. Custom vs STL
-
-So sánh:
-
-``` text
-Custom HashTable
-        vs
-std::unordered_map
-```
-
-và:
-
-``` text
-Custom PriorityQueue
-        vs
-std::priority_queue
-```
-
-STL thường có lợi thế về implementation và tối ưu hóa.
-
-Do đó Custom implementation có thể chậm hơn nhưng vẫn có cùng độ phức
-tạp Big-O.
-
-------------------------------------------------------------------------
-
-## 10.3. Heap vs Sort
-
-Nếu workload có nhiều thao tác:
-
-``` text
-Push
-Pop
-Push
-Pop
-...
-```
-
-thì Heap phù hợp vì mỗi thao tác chỉ cần:
-
-``` text
-O(log n)
-```
-
-Trong khi việc duy trì một danh sách được sort lại có thể tốn:
-
-``` text
-O(n log n)
-```
-
-cho mỗi lần sắp xếp lại.
-
-------------------------------------------------------------------------
-
-# 11. Kết luận
-
-Benchmark được thiết kế để đánh giá hai lựa chọn cấu trúc dữ liệu chính
-của project.
+Benchmark sử dụng checksum để kiểm tra rằng các implementation đang xử lý cùng một workload.
 
 ### MC1
 
-HashTable tự cài đặt có độ phức tạp trung bình:
+Checksum ở cả ba cách lookup đều khớp:
 
-``` text
-Insert  → O(1)
-Lookup  → O(1)
-```
-
-Do đó phù hợp với các thao tác tìm kiếm booking/request theo key.
+- N = 10,000: `1,240,056,000`
+- N = 100,000: `124,000,560,000`
 
 ### MC2
 
-PriorityQueue sử dụng Min-Heap có:
+Checksum của cả ba phương án đều khớp:
 
-``` text
-Push → O(log n)
-Pop  → O(log n)
-Top  → O(1)
+- N = 10,000: `90,000`
+- N = 100,000: `900,000`
+
+Vì vậy benchmark không chỉ đo thời gian mà còn kiểm tra rằng các phương án đang thực hiện cùng một công việc logic.
+
+## 7. Đối chiếu với phân tích độ phức tạp
+
+| Yêu cầu | Cách tiếp cận | Độ phức tạp kỳ vọng | Kết quả thực nghiệm |
+|---|---|---:|---|
+| MC1 exact lookup | Linear scan | O(n) / query | Tăng gần tỷ lệ với kích thước dữ liệu |
+| MC1 exact lookup | Custom HashTable | O(1) trung bình / query | Tăng chậm hơn linear scan rất nhiều |
+| MC2 priority processing | Binary heap | O(n log n) tổng | Tăng khoảng 13x khi N tăng 10x |
+| MC2 batch sorting | Sort | O(n log n) tổng | Tăng khoảng 12.8x khi N tăng 10x |
+
+Các số đo không được dùng để khẳng định một hằng số tuyệt đối cho Big-O. Mục tiêu của thực nghiệm là kiểm chứng **xu hướng tăng trưởng** khi N thay đổi.
+
+## 8. Kết luận
+
+### MC1
+
+`HashTable` là lựa chọn phù hợp cho exact lookup theo `bookingId`. So với linear scan, khoảng cách hiệu năng tăng rất lớn khi quy mô dữ liệu tăng. Ở N = 100,000, lookup của custom HashTable chỉ mất **7.101 ms**, trong khi linear scan mất **13,558.826 ms** trong cùng workload.
+
+### MC2
+
+`PriorityQueue` dựa trên binary heap phù hợp với nghiệp vụ xử lý booking request theo thứ tự ưu tiên. Các thao tác `push` và `pop` có độ phức tạp O(log n), do đó toàn bộ quá trình xử lý n request có xu hướng O(n log n). Kết quả benchmark phù hợp với xu hướng này.
+
+### Đánh giá implementation tự cài đặt
+
+Benchmark cũng cho thấy custom implementations hiện tại chậm hơn các implementation STL trong môi trường thử nghiệm:
+
+- Custom HashTable chậm hơn `std::unordered_map` ở lookup tại N = 100,000.
+- Custom PriorityQueue chậm hơn `std::priority_queue` ở cả push và pop.
+
+Điều này là chấp nhận được đối với mục tiêu của đồ án DSA: nhóm cần **tự cài đặt và chứng minh lựa chọn cấu trúc dữ liệu**, không nhất thiết phải vượt qua thư viện STL đã được tối ưu.
+
+## 9. Hạn chế của benchmark
+
+1. Thời gian phụ thuộc vào CPU, RAM, compiler, optimization level và trạng thái hệ thống.
+2. Mỗi cấu hình trong lần chạy này được đo một lần; chưa thực hiện nhiều repetition rồi lấy median/mean.
+3. Dữ liệu benchmark là dữ liệu sinh tự động, chưa phải toàn bộ dữ liệu production thực tế.
+4. Custom HashTable sử dụng `std::hash<string>`, nên benchmark đánh giá phần cấu trúc bucket/collision/resize do nhóm cài đặt, nhưng không phải tự cài đặt thuật toán hash.
+5. Linear scan tại N = 100,000 đã mất khoảng 13.6 giây; vì vậy không tiếp tục chạy linear scan ở N = 250,000 trong cùng lần đo để tránh tạo workload O(n²) quá lớn. Hai điểm 10,000 và 100,000 đã đủ để kiểm chứng yêu cầu tăng quy mô một bậc độ lớn.
+
+## 10. Cách chạy lại benchmark
+
+Từ thư mục project:
+
+```bash
+g++ -std=c++17 -O2 benchmark/benchmark.cpp -o benchmark
+./benchmark 10000 100000
 ```
 
-Đây là lựa chọn phù hợp cho hệ thống cần liên tục thêm request và lấy
-request có độ ưu tiên cao nhất.
+Trên Windows với MinGW:
 
-### Tổng kết
+```bash
+g++ -std=c++17 -O2 benchmark/benchmark.cpp -o benchmark.exe
+benchmark.exe 10000 100000
+```
 
-Benchmark cho phép nhóm:
+Khi defense, nên giữ lại output terminal của lần chạy thực tế và giải thích ba ý chính:
 
--   Kiểm chứng độ phức tạp lý thuyết bằng dữ liệu thực tế.
--   So sánh implementation tự cài đặt với STL.
--   Kiểm tra khả năng mở rộng khi dữ liệu tăng.
--   Xác nhận tính đúng của kết quả thông qua checksum.
-
-**Benchmark Report tập trung vào phương pháp đo và số liệu. Phần đánh
-giá ưu/nhược điểm và giải thích nguyên nhân của kết quả được trình bày
-riêng trong `benchmark-review.md`.**
+1. **MC1:** HashTable giảm mạnh thời gian exact lookup so với linear scan.
+2. **MC2:** Binary heap cho phép lấy request ưu tiên với `top = O(1)`, `push/pop = O(log n)`.
+3. **Số liệu thực nghiệm phù hợp với xu hướng Big-O**, nhưng không dùng benchmark để khẳng định Big-O một cách tuyệt đối.
