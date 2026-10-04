@@ -3,7 +3,7 @@
 </style>
 
 ### NHẬT KÝ SỬ DỤNG AI & PHẢN TƯ (AI LOG & REFLECTION)
-> **Ngày cập nhập:** 01/10/2026
+> **Ngày cập nhập:** 04/10/2026
 > **Nhóm thực hiện:** DASA_605
 ---
 *Nhóm em đã sử dụng AI để tạo ra form mẫu, sau đó chỉnh sửa lại theo đúng những gì nhóm chúng em thực hiện*
@@ -31,6 +31,7 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 | 10 | 02/10 | Nhật | test_showtime | Tìm hướng giải quyết | Dựa trên 6 tiêu chí để tìm kiếm một suất phù hợp, hãy giúp tôi viết code đúng yêu cầu, nếu sai thì nhảy ra ngay | Đúng như yêu cầu, kiểm tra lần lượt từng tiêu chí, nếu sai có thể fix nhanh chóng |
 | 11 | 03/10 | Hoàng | design.md | Vẽ sơ đồ kiến trúc hệ thống | Hãy vẽ sơ đồ kiến trúc hệ thống theo mô hình ba tầng theo mô tả sau: .... Yêu cầu hình vẽ: ... | AI trả ra là một hình vẽ sơ đồ kiến trúc hệ thống, đánh giá thiết kế đúng theo yêu cầu |
 | 12 | 03/10 | Hoàng | Giaodien | Xây dựng một giao diện | Tôi sẽ cung cấp source code C++ hiện tại của project. Hãy đọc và phân tích source code trước, sau đó xây dựng một giao diện frontend phù hợp với chính các chức năng mà code hiện tại đang có. | AI đọc hiểu code C++, liệt kê danh sách tính năng và vẽ ra giao diện |
+| 13 | 04/10 | Minh & Quốc Anh | benchmark-report | hỗ trợ báo cáo hiệu năng của nhóm | Đưa dự án của nhóm và yêu cầu hướng dẫn đồ án của thầy và nêu câu hướng dẫn | Khá phù hợp với nhóm |
 
 ## III. Phản tư & Đánh giá (Reflection)
 
