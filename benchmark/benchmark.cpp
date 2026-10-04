@@ -84,6 +84,7 @@ struct HashBenchmarkResult {
     double customLookupMs{};
     double stlInsertMs{};
     double stlLookupMs{};
+    double linearLookupMs{};
     long long customChecksum{};
     long long stlChecksum{};
 };
@@ -124,6 +125,19 @@ HashBenchmarkResult benchmarkHashTable(int n, int q) {
             }
         }
         result.customChecksum = checksum;
+    });
+
+    result.linearLookupMs = measureMs([&] {
+        long long checksum = 0;
+        for (const string& key : queries) {
+            for (int i = 0; i < n; ++i) {
+                if (keys[i] == key) {
+                    checksum += valueFor(i);
+                    break;
+                }
+            }
+        }
+        if (checksum != result.customChecksum) cerr << "WARNING: MC1 linear checksum differs!\n";
     });
 
     unordered_map<string, int> stl;
@@ -273,6 +287,11 @@ void printHashResult(int n, int q, const HashBenchmarkResult& r) {
     cout << left << setw(28) << "Custom HashTable"
          << right << setw(16) << fixed << setprecision(3) << r.customInsertMs
          << setw(16) << r.customLookupMs
+         << setw(20) << r.customChecksum << '\n';
+
+    cout << left << setw(28) << "Linear scan"
+         << right << setw(16) << "-"
+         << setw(16) << r.linearLookupMs
          << setw(20) << r.customChecksum << '\n';
 
     cout << left << setw(28) << "std::unordered_map"
