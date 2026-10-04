@@ -178,7 +178,7 @@ const api = (() => {
     return n;
   }
   const DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];   // Ticket KHÔNG xét năm nhuận (giống C++)
-  const checkId = id => /^VN-CINEMA-\d{5}[A-Za-z]$/.test(id);
+  const checkId = id => /^VN-CINEMA-\d{5}[A-Z]$/.test(id);
   const checkTime = dt => {
     if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(dt)) return false;
     const [y, mo, d, h, mi] = dt.split(/[- :]/).map(Number);
