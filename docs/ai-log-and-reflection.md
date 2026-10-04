@@ -39,6 +39,11 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 - Gọn gàng: nhiều hàm còn quá dài cần tách nhỏ ra, đôi khi lại có những mã nguồn khá là ngắn gọn nằm ngoài khả năng hiểu biết của bản thân khiến cho việc phải tạo lệnh nhờ xử lí lại. 
 
 ### 2. Phạm Hồng Tiến Minh
+Điểm tốt:
+- Code rõ ràng chạy, chạy đúng LIFO, quản lí bộ nhớ và xử lý logic của undo hợp lí
+
+Điểm chưa tốt:
+- Xử lí lỗi và khả năng mở rộng của code còn hạn chế, UndoService phụ thuộc nhiều vào cout và các operation đang được xử lý cố định bằng if
 
 ### 3. Trương Hoàng Minh Nhật
 

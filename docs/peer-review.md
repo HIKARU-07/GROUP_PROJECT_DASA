@@ -47,10 +47,10 @@
 - **Kết luận:**
 
 ### 5. Review của Phạm Hồng Tiến Minh cho phần code của Phạm Minh Hoàng
-- **Thành phần review:** 
-- **Nhận xét:**
+- **Thành phần review:** DoubleLinkedList.h - RecentlyViewedService.cpp
+- **Nhận xét:** Thành viên triển khai khá tốt chức năng **Recently Viewed**, sử dụng `DoubleLinkedList` phù hợp với yêu cầu vì có thể thêm/xóa ở đầu và cuối danh sách hiệu quả. Logic `view()` xử lý đúng trường hợp phim đã tồn tại bằng cách xóa phim cũ rồi đưa lên đầu, đồng thời giới hạn số lượng lịch sử thông qua `MAX`. Phần `DoubleLinkedList` được triển khai tương đối đầy đủ với `head`, `tail`, `prev/next`, destructor và `clear()` để quản lý và giải phóng bộ nhớ. Tuy nhiên, code vẫn cần cải thiện ở một số điểm như `getAt()` chưa tự kiểm tra phạm vi index.
 
-- **Kết luận:**
+- **Kết luận:** Nhìn chung, thành viên hoàn thành tốt chức năng được giao, hiểu và áp dụng đúng **Double Linked List** vào bài toán **Recently Viewed**. Code có nền tảng tốt.
 
 ---
 
