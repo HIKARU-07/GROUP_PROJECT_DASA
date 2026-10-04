@@ -47,7 +47,13 @@ Trong quá trình triển khai và hoàn thiện đồ án, nhóm của chúng e
 
 ### 3. Trương Hoàng Minh Nhật
 
-### 4.
+### 4. Lê Bùi Minh Hiếu
+Điểm tốt:
+- Code đã chạy đúng các yêu cầu, các hàm đã được định nghĩa cụ thể dễ hiểu, đảm bảo tra cứu và kiểm tra với thời gian tối thiểu.
+
+Điểm chưa tốt:
+- Các hàm để kiểm tra thông tin thời gian phải tính từ năm 1 rồi mới có thể so sánh.
+- Chưa mở ra được khả năng phát triển code, bản thân đã sử dụng nhiều các hàm thư viện.
 
 ### 5.
 
