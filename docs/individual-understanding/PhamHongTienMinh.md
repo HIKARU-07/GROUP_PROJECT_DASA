@@ -1,22 +1,11 @@
-## 1. Vai trò cụ thể
+## Nhận định cá nhân về đề tài
 
-- **Thiết kế cấu trúc dữ liệu:** Xây dựng `Stack` bằng Linked List, quản lý `push`, `pop`, `peek`, `empty` và giới hạn tối đa 10 phần tử.
-- **Thiết kế dữ liệu Undo:** Xây dựng `UndoAction` để lưu thông tin thao tác và thời gian thực hiện.
-- **Xây dựng chức năng Undo:** Phát triển `UndoService` để đọc dữ liệu từ file, đưa thao tác vào Stack và xử lý Undo theo nguyên tắc LIFO.
-- **Xử lý thời gian:** Xây dựng cơ chế chuyển timestamp sang `time_t` và kiểm tra thao tác có vượt quá 15 phút hay không.
-- **Debug và kiểm thử:** Kiểm tra các trường hợp Stack rỗng, timestamp không hợp lệ, Undo thất bại và đảm bảo dữ liệu không bị xóa khi Undo không thành công.
+Đề tài “Hệ thống đặt vé sự kiện / Rạp chiếu phim” là một đề tài có tính thực tiễn cao và phù hợp để vận dụng các kiến thức đã được học trong môn học. Bài toán mô phỏng một hệ thống đặt vé trong thực tế, bao gồm nhiều nhiệm vụ như quản lý sự kiện hoặc phim, suất chiếu, ghế ngồi, thông tin khách hàng, đặt vé, hủy vé và quản lý lịch sử giao dịch.
 
-## 2. Gặp khó khăn gì?
+Theo quan điểm cá nhân, điểm quan trọng của đề tài không chỉ nằm ở việc xây dựng các chức năng đáp ứng yêu cầu, mà còn ở việc đảm bảo tính chính xác và nhất quán của dữ liệu trong quá trình xử lý. Chẳng hạn, đối với chức năng đặt vé, hệ thống cần đảm bảo trạng thái của ghế được cập nhật chính xác và hạn chế xảy ra tình trạng một ghế được đặt bởi nhiều người. Đối với chức năng hoàn tác, hệ thống cũng cần xác định đúng thao tác có thể được hoàn tác và đảm bảo việc khôi phục trạng thái không làm ảnh hưởng đến các dữ liệu đã được xác nhận.
 
-- **Logic `peek()` và `pop()`:** Ban đầu gặp lỗi khi Undo thất bại nhưng phần tử vẫn bị xóa khỏi Stack, sau đó sửa bằng cách kiểm tra bằng `peek()` trước rồi mới `pop()`.
-- **Xử lý timestamp:** Gặp khó khăn trong việc chuyển chuỗi thời gian `YYYY-MM-DD HH:MM` sang dạng có thể tính toán và xác định chính xác khoảng cách 15 phút.
-- **Quản lý Linked List:** Phải đảm bảo `topNode`, `next`, `count` được cập nhật chính xác khi thêm, xóa và giải phóng Node.
-- **Xử lý dữ liệu đầu vào:** Phải kiểm tra trường hợp file không mở được, dữ liệu thiếu dấu `|`, timestamp không hợp lệ hoặc operation không đúng.
+Bên cạnh đó, đề tài tạo điều kiện để nhóm vận dụng nhiều kiến thức về lập trình hướng đối tượng, cấu trúc dữ liệu và kỹ thuật phát triển phần mềm. Việc lựa chọn và sử dụng các cấu trúc dữ liệu như `Stack`, `Queue` hoặc `Linked List` cần dựa trên đặc điểm của từng nhiệm vụ, đồng thời phải đảm bảo tính hợp lý về mặt thiết kế và hiệu quả xử lý.
 
-## 3. Học được những gì?
+Tuy nhiên, do hệ thống bao gồm nhiều chức năng có mối quan hệ với nhau, việc thiết kế kiến trúc và thống nhất cách tổ chức dữ liệu giữa các thành viên trong nhóm là một vấn đề cần được chú trọng. Nếu các thành phần không được thiết kế thống nhất ngay từ đầu, quá trình tích hợp có thể phát sinh lỗi hoặc làm giảm tính nhất quán của toàn bộ hệ thống.
 
-- Hiểu rõ hơn **cách Stack hoạt động theo nguyên tắc LIFO** và cách tự triển khai Stack bằng Linked List.
-- Biết cách **tách dữ liệu, cấu trúc dữ liệu và xử lý nghiệp vụ** thành `UndoAction`, `Stack` và `UndoService`.
-- Hiểu cách sử dụng `get_time()`, `mktime()` và `difftime()` để xử lý và so sánh thời gian trong C++.
-- Học được tầm quan trọng của **debug và xử lý các trường hợp ngoại lệ**, đặc biệt là phải đảm bảo dữ liệu không bị thay đổi khi một thao tác thất bại.
-- Hiểu rằng code không chỉ cần chạy đúng mà còn phải **dễ đọc, dễ kiểm tra và hạn chế lỗi khi mở rộng**.
+Qua quá trình tìm hiểu đề tài, em nhận thấy đây là một bài toán có phạm vi tương đối rộng nhưng có tính ứng dụng rõ ràng, đồng thời tạo cơ hội để vận dụng tổng hợp các kiến thức đã học vào một hệ thống cụ thể. Vì vậy, tôi đánh giá đề tài phù hợp với mục tiêu của đồ án cuối kỳ. Để đạt được kết quả tốt, nhóm cần chú trọng không chỉ đến việc hệ thống hoạt động đúng yêu cầu mà còn phải đảm bảo tính tổ chức trong thiết kế, tính chính xác trong xử lý nhiệm vụ, khả năng mở rộng và hiệu quả của các giải pháp được lựa chọn.
