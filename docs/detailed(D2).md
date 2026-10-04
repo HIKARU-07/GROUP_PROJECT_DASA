@@ -1,3 +1,8 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
+
 # Báo cáo bài tập D2
 ## Nội dung báo cáo Project – D2 – Nộp Tài liệu Yêu cầu & Bài toán
 ## Lĩnh vực của nhóm chọn: Hệ thống đặt vé sự kiện / Rạp chiếu phim

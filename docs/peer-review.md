@@ -1,14 +1,16 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
+
 # BIÊN BẢN ĐÁNH GIÁ CHÉO & REVIEW KỸ THUẬT (PEER REVIEW)
 
 > **Mã lớp HP:** 261DASA230179_06
 > **Tên đồ án:** Hệ thống đặt vé sự kiện / Rạp chiếu phim
 > **Ngày thực hiện:** 22/09/2026
 ---
-*Nhóm em đã sử dụng AI để tạo ra form mẫu, sau đó chỉnh sửa lại theo đúng những gì nhóm chúng em thực hiện*
+
 ## I. BẢNG TỔNG HỢP ĐÁNH GIÁ ĐÓNG GÓP (PEER RATING)
-
-*Hướng dẫn: Mỗi thành viên tự đánh giá bản thân và đánh giá các thành viên còn lại dựa trên mức độ đóng góp thực tế. Điểm tối đa là 10. Điểm trung bình sẽ được dùng để điều chỉnh điểm cá nhân.*
-
 | STT | Họ và Tên | MSSV | Mức độ hoàn thành (%) | Điểm đóng góp (1-10) | 
 |:---:|:---|:---:|:---:|:---|
 | 1 | Phạm Minh Hoàng | 25110205 |  100% | 10 | 
@@ -23,10 +25,10 @@
 *Mỗi thành viên chọn 1 thành phần code của bạn khác để review (tối đa nửa trang).*
 
 ### 1. Review của Phạm Minh Hoàng cho phần code của Lê Bùi Minh Hiếu 
-- **Thành phần review:** 
-- **Nhận xét:**
+- **Thành phần review:** `TicketService.cpp`
+- **Nhận xét:** Chọn bảng băm lưu vé là hợp lý, nhưng kích thước cố định nên thêm nhiều vé sẽ chậm dần; ô dùng danh sách liên kết đôi hơi thừa, chỉ cần đơn, thêm/tìm vé phải duyệt từng phần tử trong ô nên ô dài thì lâu, thứ tự kiểm tra (định dạng, tồn tại, hết hạn, đã dùng) hợp lý vì cái nhẹ làm trước; ba chỗ chưa tối ưu xử lí: tháng 2 luôn 28 ngày nên 29/02 bị coi sai, mỗi năm luôn 365 ngày nên đếm thời gian lệch (cái này cũng một phần do nhóm đã thống nhất để đi trọng tâm hơn vào việc xử lý), kiểm "hết hạn" trước "đã dùng" nên vé vừa hết hạn vừa đã dùng có thể báo nhầm. Về điểm tốt, bạn tách hàm nhỏ dễ đọc, các điều kiện đặt ra được điểm tra khá kĩ càng.
 
-- **Kết luận:** 
+- **Kết luận:** Cấu trúc đúng hướng, đáp ứng đủ cho bài tập, chọn hash + linked list hợp lý.
 
 ### 2. Review của Lê Bùi Minh Hiếu cho phần code của Trương Hoàng Minh Nhật
 **Thành phần review:** Showtime.h - ShowtimeService.h - ShowtimeService.cpp - HashTable.h
@@ -57,8 +59,6 @@
 
 ## III. KẾT LUẬN CHUNG CỦA NHÓM
 
-- **Tinh thần làm việc:** Nhóm làm việc nghiêm túc, hầu hết các deadline đều được hoàn thành đúng hạn. Có sự phân công rõ ràng và hỗ trợ lẫn nhau khi gặp khó khăn.
-- **Mức độ đóng góp:** Tương đối đồng đều, không có thành viên nào "ăn theo". Các thành viên đều có đóng góp kỹ thuật thực chất (code) và đóng góp về lập luận (thiết kế).
-- **Đề xuất điều chỉnh cá nhân (nếu có):** Không có đề xuất điều chỉnh đặc biệt, giữ nguyên theo điểm đóng góp ở Mục I.
-
+- **Tinh thần làm việc:** Nhóm làm nghiêm túc, hầu hết deadline đều đúng hạn. Phân công rõ ràng, ai gặp khó thì được hỗ trợ. Mọi người có ý thức với tiến độ chung, không để việc tồn rồi dồn cho người khác. Khi có bạn chưa hiểu phần code hay thiết kế thì những bạn còn lại ngồi lại trao đổi, có khi sửa giúp. Nhóm cũng thống nhất cách làm trước khi code nên ít bị lệch nhau.
+- **Mức độ đóng góp:** Tương đối đồng đều, không có ai "ăn theo". Các thành viên đều đóng góp cả code lẫn lập luận thiết kế. Có bạn mạnh về cấu trúc dữ liệu, có bạn mạnh về xử lý logic và kiểm tra dữ liệu đầu vào, nhưng ghép lại thì phần của ai cũng rõ trong sản phẩm cuối. Mấy phần khó như thiết kế bảng băm, kiểm tra định dạng vé, xử lý thời gian đều chia nhau làm và review chéo.
 ---

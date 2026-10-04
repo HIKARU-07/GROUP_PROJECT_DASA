@@ -1,9 +1,12 @@
+<style>
+  body { font-family: "Times New Roman", Times, serif; }
+</style>
+
+
 # BÁO CÁO THIẾT KẾ & BIỆN MINH LỰA CHỌN CẤU TRÚC DỮ LIỆU
 
 **Mã lớp HP:** 261DASA230179_06  
 **Đồ án:** Hệ thống đặt vé sự kiện / Rạp chiếu phim  
----
-*Nhóm của chúng em đã sử dụng AI để tạo ra biểu mẫu ban đầu, sau đó thực hiện chỉnh sửa chỉnh sửa sao cho sát với những gì nhóm đã triển khai.*
 ---
 
 ## I. KIẾN TRÚC HỆ THỐNG
