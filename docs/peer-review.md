@@ -44,10 +44,13 @@
 - **Kết luận:** Nhìn chung, thành viên hoàn thành tốt chức năng đã được giao, hiểu và áp dụng nhiều cấu trúc mới như `PriorityQueue` để giải quyết thứ tự công việc cần xử lý.
 
 ### 4. Review của Tào Lê Quốc Anh cho phần code của Phạm Hồng Tiến Minh
-- **Thành phần review:** 
-- **Nhận xét:**
+- **Thành phần review:** Stack.h - UndoAction.h - UndoService.h - UndoService.cpp
 
-- **Kết luận:**
+- **Nhận xét:** Phần Stack được cài đặt bằng Linked List và tuân thủ đúng nguyên lý LIFO. Các thao tác chính như push(), pop(), peek() được xây dựng rõ ràng, trong đó push() và pop() có độ phức tạp O(1). Code có kiểm tra trạng thái Stack và thực hiện giải phóng bộ nhớ, giúp hạn chế lỗi trong quá trình sử dụng. Tuy nhiên, việc giới hạn kích thước Stack cố định và sử dụng get() cần duyệt phần tử khiến tính linh hoạt và hiệu năng chưa tối ưu trong một số trường hợp.
+
+  Phần Undo sử dụng Stack để lưu lịch sử thao tác, phù hợp với đặc điểm Undo vì thao tác gần nhất sẽ được xử lý trước. UndoService có tổ chức tương đối rõ ràng, có kiểm tra loại thao tác và thời gian Undo, đồng thời có file test riêng để kiểm tra chức năng. Tuy nhiên, chức năng Undo hiện chủ yếu mới xử lý và mô phỏng việc hoàn tác thông qua kết quả xuất ra, chưa thực sự cập nhật trạng thái của hệ thống đặt vé. Ngoài ra, phần xử lý Undo mới tập trung vào một số loại thao tác nhất định nên khả năng mở rộng còn hạn chế.
+
+- **Kết luận:** Nhìn chung, phần Stack được triển khai đúng cấu trúc dữ liệu và đáp ứng tốt yêu cầu của bài toán. Phần Undo cũng lựa chọn Stack phù hợp và thể hiện được cách ứng dụng cấu trúc dữ liệu vào một chức năng thực tế. Code có cấu trúc tương đối rõ ràng và có kiểm thử, tuy nhiên cần cải thiện khả năng tích hợp Undo với trạng thái thực tế của hệ thống và mở rộng các loại thao tác có thể hoàn tác.
 
 ### 5. Review của Phạm Hồng Tiến Minh cho phần code của Phạm Minh Hoàng
 - **Thành phần review:** DoubleLinkedList.h - RecentlyViewedService.cpp
