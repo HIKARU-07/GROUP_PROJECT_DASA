@@ -1,302 +1,411 @@
-# Benchmark Review
+# Benchmark Report
 
-## 1. Mục đích
+## 1. Tổng quan
 
-Benchmark dùng để đánh giá hiệu năng của hai cấu trúc dữ liệu chính
-trong project:
+Benchmark được xây dựng để đánh giá hiệu năng của các cấu trúc dữ liệu
+được sử dụng trong project.
 
--   **MC1:** `HashTable` tự cài đặt.
--   **MC2:** `PriorityQueue` tự cài đặt bằng Min-Heap.
+Hai thành phần chính được kiểm thử:
 
-Các cấu trúc tự cài đặt được so sánh với cấu trúc tương ứng của STL để
-có mốc tham chiếu.
+-   **MC1 -- HashTable:** HashTable tự cài đặt.
+-   **MC2 -- PriorityQueue:** PriorityQueue tự cài đặt bằng Min-Heap.
 
-> Lưu ý: số liệu benchmark phụ thuộc máy tính, compiler, hệ điều hành và
-> mức tối ưu hóa. Vì vậy nên dùng kết quả để so sánh tương đối giữa các
-> phương án trên cùng một môi trường.
+Các cấu trúc tự cài đặt được so sánh với các cấu trúc tương ứng của STL
+nhằm tạo một baseline để đánh giá hiệu năng.
 
 ------------------------------------------------------------------------
 
-## 2. Môi trường và cách chạy
+## 2. Mục tiêu
 
-Benchmark sử dụng:
+Benchmark có các mục tiêu chính:
 
--   C++17
--   `std::chrono::steady_clock`
--   Khuyến nghị biên dịch ở `Release` hoặc `-O2`
--   Dữ liệu được sinh tự động và có tính xác định.
--   Checksum được sử dụng để kiểm tra kết quả và tránh trường hợp phép
-    đo không thực sự thực hiện công việc cần đo.
+1.  Đo thời gian thực thi của các thao tác quan trọng.
+2.  So sánh implementation tự cài đặt với STL.
+3.  Kiểm tra sự phù hợp giữa hiệu năng thực tế và độ phức tạp lý thuyết.
+4.  Kiểm tra tính đúng của kết quả thông qua checksum.
+5.  Đánh giá khả năng mở rộng khi số lượng dữ liệu tăng.
 
-Chạy mặc định:
+------------------------------------------------------------------------
+
+## 3. Môi trường thử nghiệm
+
+Benchmark được viết bằng **C++17** và sử dụng
+`std::chrono::steady_clock` để đo thời gian.
+
+Khuyến nghị biên dịch ở chế độ tối ưu hóa:
 
 ``` bash
-benchmark.exe
+g++ -std=c++17 -O2
 ```
 
-Kích thước dữ liệu mặc định:
+Các yếu tố như CPU, RAM, compiler, hệ điều hành và chương trình chạy nền
+có thể ảnh hưởng đến thời gian benchmark.
+
+Vì vậy, các phương án phải được chạy trong cùng một môi trường để kết
+quả có tính so sánh.
+
+------------------------------------------------------------------------
+
+## 4. Dữ liệu kiểm thử
+
+Benchmark hỗ trợ nhiều kích thước dữ liệu để quan sát xu hướng khi quy
+mô input tăng.
+
+Các kích thước mặc định:
 
 ``` text
-10,000
-50,000
-100,000
-250,000
+N = 10,000
+N = 50,000
+N = 100,000
+N = 250,000
 ```
 
-Có thể truyền kích thước tùy ý:
+Có thể truyền kích thước khác khi chạy:
 
 ``` bash
 benchmark.exe 10000 50000 100000
 ```
 
-------------------------------------------------------------------------
-
-## 3. Review MC1 -- HashTable
-
-### Phương án benchmark
-
-So sánh:
-
-1.  `HashTable<int>` tự cài đặt của project.
-2.  `std::unordered_map<string, int>` của STL.
-
-Benchmark đo hai thao tác:
-
--   **Insert:** thêm `N` booking ID.
--   **Lookup:** thực hiện `N` truy vấn, trong đó khoảng 80% truy vấn
-    thành công và 20% không tồn tại.
-
-### Độ phức tạp
-
-  Thao tác              HashTable   `std::unordered_map`
-  ------------------- ----------- ----------------------
-  Insert trung bình          O(1)                   O(1)
-  Lookup trung bình          O(1)                   O(1)
-  Trường hợp xấu             O(n)                   O(n)
-
-`HashTable` của project sử dụng:
-
--   `std::hash<string>` để tạo hash.
--   Chia dữ liệu thành các bucket.
--   Mỗi bucket sử dụng `DoubleLinkedList`.
--   Khi load factor vượt `0.75`, bảng được resize lên gấp đôi.
-
-### Nhận xét
-
-Ưu điểm của `HashTable` tự cài đặt:
-
--   Đáp ứng đúng yêu cầu tự xây dựng cấu trúc dữ liệu.
--   Cho phép nhóm kiểm soát cách xử lý collision.
--   Có cơ chế resize khi bảng trở nên quá đầy.
-
-Hạn chế:
-
--   Mỗi bucket sử dụng linked list nên lookup trong bucket vẫn phải
-    duyệt tuyến tính.
--   Việc cấp phát và thao tác trên linked list có thể tạo overhead.
--   `std::unordered_map` được thư viện chuẩn tối ưu hóa mạnh nên thường
-    có lợi thế về hiệu năng thực tế.
-
-**Kết luận MC1:** `HashTable` tự cài đặt phù hợp với mục tiêu học thuật
-và yêu cầu của project. `std::unordered_map` phù hợp hơn nếu mục tiêu
-chính là hiệu năng và độ ổn định trong ứng dụng thực tế.
+Dữ liệu được sinh tự động để đảm bảo các phương án nhận cùng một
+workload.
 
 ------------------------------------------------------------------------
 
-## 4. Review MC2 -- PriorityQueue
+# 5. MC1 -- HashTable Benchmark
 
-### Phương án benchmark
+## 5.1. Các phương án
 
-So sánh ba cách:
+MC1 so sánh:
 
-1.  `PriorityQueue` tự cài đặt bằng Min-Heap.
-2.  `std::priority_queue`.
-3.  `sort + sequential scan`.
+### Custom HashTable
 
-Tất cả các phương án sử dụng cùng tập `BookingRequest` và cùng tiêu chí
-ưu tiên:
+HashTable do nhóm tự cài đặt.
+
+Đặc điểm:
+
+-   Hash function dựa trên `std::hash`.
+-   Collision được xử lý bằng bucket.
+-   Bucket sử dụng linked list.
+-   Resize khi load factor vượt ngưỡng quy định.
+
+### STL `std::unordered_map`
+
+`std::unordered_map` được sử dụng làm baseline.
+
+Đây là hash table được cung cấp bởi thư viện chuẩn C++.
+
+------------------------------------------------------------------------
+
+## 5.2. Các thao tác được đo
+
+### Insert
+
+Thêm `N` phần tử vào HashTable.
+
+``` text
+Insert N elements
+```
+
+Mục tiêu là đo chi phí xây dựng bảng khi số lượng phần tử tăng.
+
+### Lookup
+
+Thực hiện nhiều truy vấn tìm kiếm trên bảng.
+
+Workload bao gồm cả:
+
+-   Key tồn tại.
+-   Key không tồn tại.
+
+Điều này giúp benchmark phản ánh gần hơn trường hợp sử dụng thực tế.
+
+------------------------------------------------------------------------
+
+## 5.3. Độ phức tạp lý thuyết
+
+  Operation             Custom HashTable   `std::unordered_map`
+  ------------------- ------------------ ----------------------
+  Insert trung bình                 O(1)                   O(1)
+  Lookup trung bình                 O(1)                   O(1)
+  Worst case                        O(n)                   O(n)
+
+Về mặt lý thuyết, hai phương án có cùng độ phức tạp trung bình.
+
+Tuy nhiên, thời gian thực tế có thể khác nhau do cách triển khai, cấp
+phát bộ nhớ, collision và cache locality.
+
+------------------------------------------------------------------------
+
+# 6. MC2 -- PriorityQueue Benchmark
+
+## 6.1. Các phương án
+
+MC2 so sánh ba cách xử lý priority queue:
+
+1.  **Custom PriorityQueue**
+    -   Min-Heap tự cài đặt.
+2.  **`std::priority_queue`**
+    -   Priority queue có sẵn trong STL.
+3.  **Sort + Sequential Scan**
+    -   Sắp xếp dữ liệu rồi xử lý tuần tự.
+
+------------------------------------------------------------------------
+
+## 6.2. Tiêu chí ưu tiên
+
+Các phương án sử dụng cùng tiêu chí so sánh `BookingRequest`:
 
 1.  Timestamp nhỏ hơn được ưu tiên trước.
 2.  Nếu timestamp bằng nhau, `requestId` nhỏ hơn được ưu tiên trước.
 
-### Độ phức tạp
-
-  Thao tác     Custom PriorityQueue   `std::priority_queue`
-  ---------- ---------------------- -----------------------
-  Push                     O(log n)                O(log n)
-  Top                          O(1)                    O(1)
-  Pop                      O(log n)                O(log n)
-  Bộ nhớ                       O(n)                    O(n)
-
-Với phương án `sort`:
-
-``` text
-Sort toàn bộ N phần tử: O(n log n)
-```
-
-Sau khi sort, lấy phần tử theo thứ tự có thể thực hiện tuần tự với chi
-phí O(1) cho mỗi phần tử.
-
-### Vì sao Heap phù hợp với MC2?
-
-MC2 liên tục có các yêu cầu:
-
-``` text
-push(request)
-top()
-pop()
-```
-
-Do đó không cần sắp xếp lại toàn bộ danh sách sau mỗi lần thêm request.
-
-Min-Heap chỉ cần điều chỉnh một đường từ node mới lên root khi `push`,
-hoặc từ root xuống khi `pop`.
-
-Vì vậy:
-
-``` text
-Push  -> O(log n)
-Pop   -> O(log n)
-Top   -> O(1)
-```
-
-Đây là lý do `PriorityQueue` bằng Heap phù hợp hơn việc duy trì một mảng
-luôn được sắp xếp.
+Việc sử dụng cùng comparator đảm bảo các phương án xử lý cùng một thứ tự
+ưu tiên.
 
 ------------------------------------------------------------------------
 
-## 5. Review về STL
+## 6.3. Các thao tác được đo
 
-STL được sử dụng làm **baseline/reference**, không phải để thay thế cấu
-trúc dữ liệu mà nhóm đã tự cài đặt.
+### Push
 
-Ví dụ:
+Thêm request vào PriorityQueue.
 
-``` cpp
-HashTable<int>
+Với Min-Heap:
+
+``` text
+Push = O(log n)
 ```
 
-được so sánh với:
+### Pop
+
+Lấy và xóa request có độ ưu tiên cao nhất.
+
+``` text
+Pop = O(log n)
+```
+
+### Top
+
+Truy cập request có độ ưu tiên cao nhất mà không xóa.
+
+``` text
+Top = O(1)
+```
+
+------------------------------------------------------------------------
+
+## 6.4. Độ phức tạp
+
+  Operation     Custom Heap   `std::priority_queue`
+  ----------- ------------- -----------------------
+  Push             O(log n)                O(log n)
+  Top                  O(1)                    O(1)
+  Pop              O(log n)                O(log n)
+  Space                O(n)                    O(n)
+
+Với phương án sort:
+
+``` text
+Sorting = O(n log n)
+```
+
+Do đó sort có thể phù hợp khi cần sắp xếp toàn bộ dữ liệu một lần, nhưng
+không phù hợp bằng Heap nếu workload liên tục có `push` và `pop`.
+
+------------------------------------------------------------------------
+
+# 7. Phương pháp đo
+
+Thời gian được đo bằng:
 
 ``` cpp
-std::unordered_map<string, int>
+std::chrono::steady_clock
+```
+
+Cấu trúc đo:
+
+``` text
+Start timer
+    ↓
+Execute operation
+    ↓
+Stop timer
+    ↓
+Calculate elapsed time
+```
+
+Việc sử dụng `steady_clock` giúp tránh ảnh hưởng của thay đổi system
+clock trong quá trình đo.
+
+Các thao tác chuẩn bị dữ liệu không được tính vào thời gian của thao tác
+đang benchmark khi điều đó có thể làm sai lệch kết quả.
+
+------------------------------------------------------------------------
+
+# 8. Kiểm tra tính đúng
+
+Benchmark không chỉ đo thời gian mà còn kiểm tra kết quả.
+
+## MC1
+
+Kết quả lookup của Custom HashTable được so sánh với:
+
+``` text
+std::unordered_map
+```
+
+## MC2
+
+Kết quả xử lý được so sánh giữa:
+
+``` text
+Custom PriorityQueue
+std::priority_queue
+Sort + Scan
+```
+
+Checksum được sử dụng để phát hiện trường hợp hai implementation có thời
+gian chạy nhưng tạo ra kết quả khác nhau.
+
+Nếu checksum không giống nhau, benchmark sẽ cảnh báo để tránh đưa ra kết
+luận hiệu năng dựa trên kết quả sai.
+
+------------------------------------------------------------------------
+
+# 9. Kết quả benchmark
+
+Kết quả cần được ghi lại theo từng kích thước dữ liệu.
+
+Mẫu bảng cho MC1:
+
+          N   Custom Insert   STL Insert   Custom Lookup   STL Lookup
+  --------- --------------- ------------ --------------- ------------
+     10,000             ...          ...             ...          ...
+     50,000             ...          ...             ...          ...
+    100,000             ...          ...             ...          ...
+    250,000             ...          ...             ...          ...
+
+Mẫu bảng cho MC2:
+
+          N   Custom Push   STL Push   Custom Pop   STL Pop   Sort + Scan
+  --------- ------------- ---------- ------------ --------- -------------
+     10,000           ...        ...          ...       ...           ...
+     50,000           ...        ...          ...       ...           ...
+    100,000           ...        ...          ...       ...           ...
+    250,000           ...        ...          ...       ...           ...
+
+> Các giá trị `...` cần được thay bằng số liệu thực tế thu được khi chạy
+> benchmark trên máy của nhóm.
+
+------------------------------------------------------------------------
+
+# 10. Cách phân tích kết quả
+
+Sau khi chạy benchmark, cần tập trung vào ba vấn đề.
+
+## 10.1. Scaling theo N
+
+So sánh thời gian khi:
+
+``` text
+10,000 → 50,000 → 100,000 → 250,000
+```
+
+Nếu thời gian tăng phù hợp với độ phức tạp lý thuyết thì implementation
+có scaling hợp lý.
+
+------------------------------------------------------------------------
+
+## 10.2. Custom vs STL
+
+So sánh:
+
+``` text
+Custom HashTable
+        vs
+std::unordered_map
 ```
 
 và:
 
-``` cpp
-PriorityQueue
-```
-
-được so sánh với:
-
-``` cpp
+``` text
+Custom PriorityQueue
+        vs
 std::priority_queue
 ```
 
-Nếu custom structure chậm hơn STL thì điều đó không có nghĩa thuật toán
-sai. STL thường đã được tối ưu về:
+STL thường có lợi thế về implementation và tối ưu hóa.
 
--   Cấp phát bộ nhớ.
--   Container nội bộ.
--   Compiler optimization.
--   Copy/move object.
--   Implementation details.
-
-Benchmark chủ yếu giúp đánh giá **xu hướng hiệu năng và chi phí của cách
-cài đặt hiện tại**.
+Do đó Custom implementation có thể chậm hơn nhưng vẫn có cùng độ phức
+tạp Big-O.
 
 ------------------------------------------------------------------------
 
-## 6. Kiểm tra tính đúng của benchmark
+## 10.3. Heap vs Sort
 
-Benchmark không chỉ đo thời gian.
-
-Sau khi thực hiện các thao tác, chương trình tính `checksum`.
-
-Ví dụ MC1:
+Nếu workload có nhiều thao tác:
 
 ``` text
-Custom HashTable checksum
-vs
-std::unordered_map checksum
+Push
+Pop
+Push
+Pop
+...
 ```
 
-MC2:
+thì Heap phù hợp vì mỗi thao tác chỉ cần:
 
 ``` text
-Custom PriorityQueue checksum
-vs
-std::priority_queue checksum
-vs
-sort
+O(log n)
 ```
 
-Nếu checksum giống nhau, các phương án đã xử lý cùng một lượng dữ liệu
-đầu ra theo cách tương đương.
-
-Nếu checksum khác nhau, benchmark sẽ cảnh báo:
+Trong khi việc duy trì một danh sách được sort lại có thể tốn:
 
 ``` text
-WARNING: MC1 checksums differ!
+O(n log n)
 ```
 
-hoặc:
-
-``` text
-WARNING: MC2 checksums differ!
-```
-
-Điều này giúp phát hiện lỗi logic thay vì chỉ dựa vào thời gian chạy.
+cho mỗi lần sắp xếp lại.
 
 ------------------------------------------------------------------------
 
-## 7. Những yếu tố ảnh hưởng kết quả
+# 11. Kết luận
 
-Kết quả benchmark có thể thay đổi do:
+Benchmark được thiết kế để đánh giá hai lựa chọn cấu trúc dữ liệu chính
+của project.
 
--   CPU.
--   RAM.
--   Compiler.
--   Cờ tối ưu hóa (`-O0`, `-O2`, `-O3`).
--   Hệ điều hành.
--   Chương trình khác đang chạy nền.
--   Kích thước dữ liệu.
--   Cách cấp phát bộ nhớ.
--   Cache của CPU.
+### MC1
 
-Do đó không nên kết luận rằng một phương án luôn nhanh hơn chỉ từ một
-lần chạy.
+HashTable tự cài đặt có độ phức tạp trung bình:
 
-Nên chạy nhiều lần với cùng môi trường và so sánh xu hướng.
+``` text
+Insert  → O(1)
+Lookup  → O(1)
+```
 
-------------------------------------------------------------------------
+Do đó phù hợp với các thao tác tìm kiếm booking/request theo key.
 
-## 8. Đánh giá tổng thể
+### MC2
 
-  Tiêu chí                    Custom               STL
-  --------------------------- -------------------- --------------------
-  Mục tiêu học thuật          **Tốt**              Trung bình
-  Kiểm soát cách triển khai   **Cao**              Thấp
-  Hiệu năng thực tế           Có thể thấp hơn      **Thường tốt hơn**
-  Dễ sử dụng                  Trung bình           **Cao**
-  Phù hợp yêu cầu project     **Có**               Dùng làm baseline
-  Khả năng mở rộng code       Tùy implementation   **Tốt**
+PriorityQueue sử dụng Min-Heap có:
 
-### Kết luận
+``` text
+Push → O(log n)
+Pop  → O(log n)
+Top  → O(1)
+```
 
-Các cấu trúc dữ liệu tự cài đặt của project phù hợp với mục tiêu chính
-là **áp dụng kiến thức Data Structures & Algorithms vào bài toán thực
-tế**.
+Đây là lựa chọn phù hợp cho hệ thống cần liên tục thêm request và lấy
+request có độ ưu tiên cao nhất.
 
--   `HashTable` phù hợp với MC1 vì cung cấp lookup trung bình **O(1)**.
--   `PriorityQueue` bằng Min-Heap phù hợp với MC2 vì hỗ trợ `push/pop`
-    **O(log n)** và lấy phần tử ưu tiên nhất **O(1)**.
--   STL được dùng làm baseline để đánh giá hiệu năng, không thay thế
-    phần cài đặt của nhóm.
--   Benchmark có checksum giúp kiểm tra rằng các phương án đang xử lý dữ
-    liệu tương đương.
+### Tổng kết
 
-**Đánh giá cuối:** lựa chọn cấu trúc dữ liệu của project là hợp lý về
-mặt thuật toán. Phần khác biệt hiệu năng chủ yếu đến từ chi tiết triển
-khai và overhead của cấu trúc dữ liệu tự cài đặt.
+Benchmark cho phép nhóm:
+
+-   Kiểm chứng độ phức tạp lý thuyết bằng dữ liệu thực tế.
+-   So sánh implementation tự cài đặt với STL.
+-   Kiểm tra khả năng mở rộng khi dữ liệu tăng.
+-   Xác nhận tính đúng của kết quả thông qua checksum.
+
+**Benchmark Report tập trung vào phương pháp đo và số liệu. Phần đánh
+giá ưu/nhược điểm và giải thích nguyên nhân của kết quả được trình bày
+riêng trong `benchmark-review.md`.**
