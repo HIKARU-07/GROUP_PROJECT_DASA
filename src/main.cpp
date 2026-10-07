@@ -1,5 +1,8 @@
 #include "main.h"
 
+// g++ -std=c++17 src/main.cpp src/services/*.cpp -o cinema
+// .\cinema
+
 using namespace std;
 
 void showMenu(){
